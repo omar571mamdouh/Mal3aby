@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clubs', function (Blueprint $table) {
+        Schema::create('branches', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('club_id')->constrained()->cascadeOnDelete();
             $table->string('name');
+            $table->string('address')->nullable();
+            $table->string('city')->nullable();
             $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->string('logo')->nullable();
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clubs');
+        Schema::dropIfExists('branches');
     }
 };

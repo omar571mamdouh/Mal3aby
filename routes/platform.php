@@ -19,6 +19,15 @@ use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
+use App\Orchid\Screens\Club\ClubScreen;
+use App\Orchid\Screens\Club\ClubListScreen;
+use App\Orchid\Screens\Club\ClubEditScreen;
+use App\Orchid\Screens\Branch\BranchScreen;
+use App\Orchid\Screens\Branch\BranchEditScreen;
+use App\Orchid\Screens\Branch\BranchListScreen;
+use App\Orchid\Screens\FacilityScreen;
+use App\Orchid\Screens\CourtScreen;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -101,4 +110,24 @@ Route::screen('/examples/grid', ExampleGridScreen::class)->name('platform.exampl
 Route::screen('/examples/charts', ExampleChartsScreen::class)->name('platform.example.charts');
 Route::screen('/examples/cards', ExampleCardsScreen::class)->name('platform.example.cards');
 
+
+
+// Club routes
+Route::screen('clubs', ClubScreen::class)->name('platform.club');
+
 // Route::screen('idea', Idea::class, 'platform.screens.idea');
+
+
+Route::screen('club', ClubListScreen::class)->name('platform.club.list');
+Route::screen('club/{club?}/edit', ClubEditScreen::class)->name('platform.club.edit');
+
+
+Route::screen('branches', BranchScreen::class)
+    ->name('platform.branch');
+
+
+Route::screen('branch', BranchListScreen::class)->name('platform.branch.list');
+Route::screen('branch/{branch?}/edit', BranchEditScreen::class)->name('platform.branch.edit');
+
+Route::screen('Facilities', FacilityScreen::class)->name('platform.facility');
+Route::screen('Courts', CourtScreen::class)->name('platform.Court');

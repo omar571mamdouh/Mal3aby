@@ -45,6 +45,19 @@ class PlatformProvider extends OrchidServiceProvider
                 ->route('platform.systems.roles')
                 ->permission('platform.systems.roles')
                 ->divider(),
+            Menu::make(__('Clubs'))
+                ->icon('bs.building')
+                ->route('platform.club'),
+            Menu::make('Branches')
+                ->icon('shop') // أي أيقونة تحبها
+                ->route('platform.branch'), // اسم الـ route اللي هننشئه
+
+            Menu::make(__('Facility'))
+                ->icon('bs.door-closed')
+                ->route('platform.facility'),
+            Menu::make('Court')
+               ->icon('bs.basket') // أيقونة أقرب للملعب // أي أيقونة تحبها
+                ->route('platform.Court') // اسم الـ route اللي هننشئه
         ];
     }
 
