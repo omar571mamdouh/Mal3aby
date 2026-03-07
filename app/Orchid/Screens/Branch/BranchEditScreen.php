@@ -42,29 +42,50 @@ class BranchEditScreen extends Screen
     }
 
     public function layout(): iterable
-    {
-        return [
+{
+    return [
+        Layout::columns([
+            // === العمود الأيسر ===
             Layout::rows([
                 Select::make('branch.club_id')
                     ->title('النادي')
+                    ->prefix('bs.building')
+                    ->placeholder('اختر النادي...')
                     ->fromModel(Club::class, 'name')
+                    ->help('النادي التابع له هذا الفرع')
                     ->required(),
 
                 Input::make('branch.name')
                     ->title('اسم الفرع')
+                    ->prefix('bs.tag')
+                    ->placeholder('مثال: فرع المعادي')
+                    ->help('اسم واضح ومميز للفرع')
                     ->required(),
+            ]),
+
+            // === العمود الأيمن ===
+            Layout::rows([
+                Input::make('branch.city')
+                    ->title('المدينة')
+                    ->prefix('bs.geo-alt')
+                    ->placeholder('مثال: القاهرة')
+                    ->help('المدينة التي يقع فيها الفرع'),
 
                 Input::make('branch.address')
-                    ->title('العنوان'),
-
-                Input::make('branch.city')
-                    ->title('المدينة'),
+                    ->title('العنوان')
+                    ->prefix('bs.map')
+                    ->placeholder('مثال: 15 شارع التحرير')
+                    ->help('العنوان التفصيلي للفرع'),
 
                 Input::make('branch.phone')
-                    ->title('الهاتف'),
+                    ->title('الهاتف')
+                    ->prefix('bs.telephone')
+                    ->placeholder('مثال: 01012345678')
+                    ->help('رقم تواصل الفرع'),
             ]),
-        ];
-    }
+        ]),
+    ];
+}
 
     public function save(Request $request)
     {

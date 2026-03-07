@@ -61,22 +61,12 @@ class ClubScreen extends Screen
     /**
      * Layouts for the screen.
      */
-    public function layout(): iterable
-    {
-        return [
-            Layout::table('clubs', [
-                TD::make('name', 'الاسم')
-                    ->sort()
-                    ->filter(TD::FILTER_TEXT)
-                    ->render(fn($club) => $club->name),
-
-                TD::make('phone', 'الهاتف')
-                    ->render(fn($club) => $club->phone ?? '-'),
-
-                TD::make('email', 'البريد الإلكتروني')
-                    ->render(fn($club) => $club->email ?? '-'),
+   public function layout(): iterable
+{
+    return [
+        Layout::table('clubs', [
             
-             TD::make('logo', 'شعار النادي')
+TD::make('logo', 'شعار النادي')
     ->width('100px')
     ->align(TD::ALIGN_CENTER)
     ->render(function ($club) {
@@ -101,101 +91,112 @@ class ClubScreen extends Screen
                         border:1px solid #eee;'>
         ";
     }),
-TD::make('actions', 'الإجراءات')
-    ->align(TD::ALIGN_CENTER)
-    ->width('200px')
-    ->render(function ($club) {
-        return DropDown::make()
-            ->icon('bs.three-dots-vertical')
-            ->list([
-                Link::make('تعديل')
-                    ->route('platform.club.edit', $club) // يروح على صفحة التعديل
-                    ->icon('pencil'),
 
-                Button::make('حذف')
-                    ->method('delete')
-                    ->confirm('هل أنت متأكد من حذف النادي ' . $club->name . '؟')
-                    ->parameters(['club' => $club->id])
-                    ->icon('trash')
-                    ->type(Color::DANGER()),
-            ]);
-    }),
+            TD::make('name', 'النادي')
+                ->sort()
+                ->filter(TD::FILTER_TEXT)
+                ->render(fn($club) => '
+                    <div style="font-weight:600;color:#1a1a2e;">' . $club->name . '</div>
+                '),
+
+            TD::make('phone', 'التواصل')
+                ->render(fn($club) => '
+                    <div>
+                        <div style="font-size:12px;">📞 ' . ($club->phone ?? '—') . '</div>
+                        <div style="font-size:12px;margin-top:3px;">✉️ ' . ($club->email ?? '—') . '</div>
+                    </div>
+                '),
+
+            TD::make('active', 'الحالة')
+                ->align(TD::ALIGN_CENTER)
+                ->render(fn($club) => $club->active
+                    ? '<span style="display:inline-flex;align-items:center;gap:4px;background:#e8f5e9;color:#2e7d32;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;"><span style="width:6px;height:6px;background:#2e7d32;border-radius:50%;display:inline-block;"></span> نشط</span>'
+                    : '<span style="display:inline-flex;align-items:center;gap:4px;background:#ffebee;color:#c62828;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;"><span style="width:6px;height:6px;background:#c62828;border-radius:50%;display:inline-block;"></span> غير نشط</span>'
+                ),
+
+            TD::make('actions', 'الإجراءات')
+                ->align(TD::ALIGN_CENTER)
+                ->width('160px')
+                ->render(fn($club) =>
+                    '<div style="display:flex;gap:6px;justify-content:center;">'
+                    . Link::make('تعديل')
+                        ->route('platform.club.edit', $club)
+                        ->icon('pencil')
+                        ->class('btn btn-sm btn-primary')
+                    . Button::make('حذف')
+                        ->method('delete')
+                        ->confirm('هل أنت متأكد من حذف النادي ' . $club->name . '؟')
+                        ->parameters(['club' => $club->id])
+                        ->icon('trash')
+                        ->class('btn btn-sm btn-danger')
+                    . '</div>'
+                ),
+        ]),
+
+        // مودال إضافة نادي جديد
+        Layout::modal('addClubModal', [
+            Layout::rows([
+                Input::make('club.name')
+                    ->title('اسم النادي')
+                    ->prefix('bs.building')
+                    ->placeholder('مثال: نادي الأهلي')
+                    ->required(),
+
+                Input::make('club.phone')
+                    ->title('الهاتف')
+                    ->prefix('bs.telephone')
+                    ->placeholder('مثال: 01012345678'),
+
+                Input::make('club.email')
+                    ->title('البريد الإلكتروني')
+                    ->prefix('bs.envelope')
+                    ->placeholder('example@club.com')
+                    ->type('email'),
+
+                Upload::make('club.logo')
+                    ->title('شعار النادي')
+                    ->acceptedFiles('.png,.jpg,.jpeg,.svg')
+                    ->maxFiles(1)
+                    ->storage('public'),
             ]),
+        ])
+            ->title('إضافة نادي جديد')
+            ->applyButton('إنشاء')
+            ->closeButton('إلغاء'),
 
-            // مودال إضافة نادي جديد
-            Layout::modal('addClubModal', [
-                Layout::rows([
-                    Input::make('club.name')
-                        ->title('الاسم')
-                        ->placeholder('أدخل اسم النادي')
-                        ->required(),
+        // مودال تعديل النادي
+        Layout::modal('editClubModal', [
+            Layout::rows([
+                Input::make('club.name')
+                    ->title('اسم النادي')
+                    ->prefix('bs.building')
+                    ->placeholder('مثال: نادي الأهلي')
+                    ->required(),
 
-                    Input::make('club.phone')
-                        ->title('الهاتف')
-                        ->placeholder('أدخل رقم الهاتف'),
+                Input::make('club.phone')
+                    ->title('الهاتف')
+                    ->prefix('bs.telephone')
+                    ->placeholder('مثال: 01012345678'),
 
-                    Input::make('club.email')
-                        ->title('البريد الإلكتروني')
-                        ->placeholder('أدخل البريد الإلكتروني')
-                        ->type('email'),
+                Input::make('club.email')
+                    ->title('البريد الإلكتروني')
+                    ->prefix('bs.envelope')
+                    ->placeholder('example@club.com')
+                    ->type('email'),
 
-                    Upload::make('club.logo')
-                        ->title('شعار النادي')
-                        ->acceptedFiles('.png,.jpg,.jpeg,.svg')
-                        ->maxFiles(1)
-                        ->storage('public'),
-                ]),
-            ])
-                ->title('إضافة نادي جديد')
-                ->applyButton('إنشاء')
-                ->closeButton('إلغاء'),
-
-            // مودال تعديل النادي
-            Layout::modal('editClubModal', [
-                Layout::rows([
-                    Input::make('club.name')
-                        ->title('الاسم')
-                        ->required(),
-
-                    Input::make('club.phone')
-                        ->title('الهاتف'),
-
-                    Input::make('club.email')
-                        ->title('البريد الإلكتروني')
-                        ->type('email'),
-
-                    Upload::make('club.logo')
-                        ->title('شعار النادي')
-                        ->acceptedFiles('.png,.jpg,.jpeg,.svg')
-                        ->maxFiles(1)
-                        ->storage('public'),
-                ]),
-            ])
-                ->title('تعديل النادي')
-                ->applyButton('تحديث')
-                ->closeButton('إلغاء')
-                ->async('asyncGetClub'),
-        ];
-
-        Layout::table('branches', [
-
-    TD::make('id', 'ID'),
-
-    TD::make('name', 'اسم الفرع'),
-
-    TD::make('city', 'المدينة'),
-
-    TD::make('phone', 'الهاتف'),
-
-    TD::make('active', 'الحالة')
-        ->render(fn($branch) =>
-            $branch->active
-                ? '<span class="text-success fw-bold">نشط</span>'
-                : '<span class="text-danger fw-bold">غير نشط</span>'
-        ),
-
-]);
-    }
+                Upload::make('club.logo')
+                    ->title('شعار النادي')
+                    ->acceptedFiles('.png,.jpg,.jpeg,.svg')
+                    ->maxFiles(1)
+                    ->storage('public'),
+            ]),
+        ])
+            ->title('تعديل النادي')
+            ->applyButton('تحديث')
+            ->closeButton('إلغاء')
+            ->async('asyncGetClub'),
+    ];
+}
 
     /**
      * Async data for edit modal.
@@ -297,3 +298,5 @@ TD::make('actions', 'الإجراءات')
         return redirect()->route('platform.club');
     }
 }
+
+

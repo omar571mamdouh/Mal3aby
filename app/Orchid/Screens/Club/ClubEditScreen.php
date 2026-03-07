@@ -62,51 +62,70 @@ class ClubEditScreen extends Screen
     /**
      * Layouts for the screen.
      */
-    public function layout(): iterable
-    {
-        return [
+   public function layout(): iterable
+{
+    return [
+        Layout::columns([
+            // === العمود الأيسر - المعلومات الأساسية ===
             Layout::rows([
                 Input::make('club.name')
-                    ->title('الاسم')
+                    ->title('اسم النادي')
+                    ->prefix('bs.building')
+                    ->placeholder('مثال: نادي الأهلي')
+                    ->help('الاسم الرسمي للنادي')
                     ->required(),
 
                 Input::make('club.phone')
-                    ->title('الهاتف'),
+                    ->title('الهاتف')
+                    ->prefix('bs.telephone')
+                    ->placeholder('مثال: 01012345678')
+                    ->help('رقم التواصل الرئيسي'),
 
                 Input::make('club.email')
                     ->title('البريد الإلكتروني')
+                    ->prefix('bs.envelope')
+                    ->placeholder('example@club.com')
+                    ->help('البريد الرسمي للنادي')
                     ->type('email'),
-
-               
-Picture::make('club.logo')
-    ->title('شعار النادي')
-    ->acceptedFiles('image/*'),
             ]),
-            
-              // 👇 جدول الفروع
-     Layout::table('branches', [
 
-    TD::make('name', 'اسم الفرع')
-        ->render(fn($branch) => $branch->name),
+            // === العمود الأيمن - الشعار ===
+            Layout::rows([
+                Picture::make('club.logo')
+                    ->title('شعار النادي')
+                    ->acceptedFiles('image/*')
+                    ->help('يُفضل صورة مربعة بحجم 200×200 بكسل'),
+            ]),
+        ]),
 
-    TD::make('city', 'المدينة')
-        ->render(fn($branch) => $branch->city ?? '-'),
+        // === جدول الفروع ===
+        Layout::table('branches', [
+            TD::make('name', 'الفرع')
+                ->render(fn($b) => '
+                    <div style="font-weight:600;color:#1a1a2e;">' . $b->name . '</div>
+                '),
 
-    TD::make('phone', 'الهاتف')
-        ->render(fn($branch) => $branch->phone ?? '-'),
+            TD::make('city', 'المدينة')
+                ->render(fn($b) => $b->city
+                    ? '<span style="font-size:12px;">📍 ' . $b->city . '</span>'
+                    : '<span style="color:#aaa;">—</span>'
+                ),
 
-    TD::make('created_at', 'تاريخ الإضافة')
-        ->render(fn($branch) =>
-            $branch->created_at
-                ? $branch->created_at->format('Y-m-d')
-                : '-'
-        ),
+            TD::make('phone', 'الهاتف')
+                ->render(fn($b) => $b->phone
+                    ? '<span style="font-size:12px;">📞 ' . $b->phone . '</span>'
+                    : '<span style="color:#aaa;">—</span>'
+                ),
 
-])->title('فروع النادي')
-  ->canSee($this->club?->exists),
-
-        ];
-    }
+            TD::make('created_at', 'تاريخ الإضافة')
+                ->render(fn($b) => $b->created_at
+                    ? '<span style="font-size:12px;color:#888;">📅 ' . $b->created_at->format('Y-m-d') . '</span>'
+                    : '<span style="color:#aaa;">—</span>'
+                ),
+        ])->title('فروع النادي')
+          ->canSee($this->club?->exists),
+    ];
+}
 
     /**
      * Save or update club.

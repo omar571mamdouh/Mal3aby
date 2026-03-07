@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orchid\Screens;
+namespace App\Orchid\Screens\Court;
 
 use Orchid\Screen\Screen;
 use App\Models\Court;
@@ -212,6 +212,8 @@ class CourtScreen extends Screen
             'court.facility_id' => 'required|exists:facilities,id',
             'court.name' => 'required|string|max:255',
             'court.surface_type' => 'required|in:grass,turf,indoor',
+            'court.price_per_hour' => 'nullable|numeric|min:0',
+            'court.capacity' => 'nullable|integer|min:1',
         ]);
 
         Court::create($request->get('court'));
@@ -227,6 +229,8 @@ class CourtScreen extends Screen
             'court.facility_id' => 'required|exists:facilities,id',
             'court.name' => 'required|string|max:255',
             'court.surface_type' => 'required|in:grass,turf,indoor',
+            'court.price_per_hour' => 'nullable|numeric|min:0',
+            'court.capacity' => 'nullable|integer|min:1',
         ]);
 
         $court->update($request->get('court'));

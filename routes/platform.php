@@ -25,8 +25,12 @@ use App\Orchid\Screens\Club\ClubEditScreen;
 use App\Orchid\Screens\Branch\BranchScreen;
 use App\Orchid\Screens\Branch\BranchEditScreen;
 use App\Orchid\Screens\Branch\BranchListScreen;
-use App\Orchid\Screens\FacilityScreen;
-use App\Orchid\Screens\CourtScreen;
+use App\Orchid\Screens\Facility\FacilityScreen;
+use App\Orchid\Screens\Facility\FacilityEditScreen;
+use App\Orchid\Screens\Facility\FacilityListScreen;
+use App\Orchid\Screens\Court\CourtScreen;
+use App\Orchid\Screens\Court\CourtEditScreen;
+use App\Orchid\Screens\Court\CourtListScreen;
 
 
 /*
@@ -129,5 +133,16 @@ Route::screen('branches', BranchScreen::class)
 Route::screen('branch', BranchListScreen::class)->name('platform.branch.list');
 Route::screen('branch/{branch?}/edit', BranchEditScreen::class)->name('platform.branch.edit');
 
-Route::screen('Facilities', FacilityScreen::class)->name('platform.facility');
-Route::screen('Courts', CourtScreen::class)->name('platform.Court');
+// صفحة عرض كل المرافق
+Route::screen('facilities', FacilityListScreen::class)
+    ->name('platform.facility');
+
+// صفحة تعديل/إضافة مرفق (منفصلة)
+Route::screen('facilities/{facility}/edit', FacilityEditScreen::class)
+    ->name('platform.facility.edit');
+
+Route::screen('courts', CourtListScreen::class)
+    ->name('platform.court');
+
+Route::screen('courts/{court}/edit', CourtEditScreen::class)
+    ->name('platform.court.edit');

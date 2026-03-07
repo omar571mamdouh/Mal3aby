@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Facility extends Model
 {
-    protected $fillable = ['branch_id','name','type','description','active'];
+    protected $fillable = ['branch_id','name','type','image','description','active'];
 
     public function branch()
     {

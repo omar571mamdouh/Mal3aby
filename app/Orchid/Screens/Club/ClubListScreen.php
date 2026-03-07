@@ -35,7 +35,7 @@ class ClubListScreen extends Screen
     public function layout(): iterable
     {
         return [
-            ClubListLayout::class, // ✅ هنا
+            ClubListLayout::class,
         ];
     }
 
