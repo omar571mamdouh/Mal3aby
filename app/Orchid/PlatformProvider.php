@@ -65,6 +65,34 @@ class PlatformProvider extends OrchidServiceProvider
             ->icon('bs.dribbble')
             ->route('platform.court'),
     ]),
+
+
+
+       Menu::make('Scheduling')
+    ->icon('bs.calendar')
+    ->list([
+        Menu::make('Time Slots')
+            ->icon('bs.clock')
+            ->route('platform.court.timeslot'),
+
+        Menu::make('Blackout Dates')
+            ->icon('bs.calendar-x'),
+           
+
+        Menu::make('Seasonal Pricing')
+            ->icon('bs.cash-stack'),
+        
+
+        Menu::make('Dynamic Pricing Rules')
+            ->icon('bs.bar-chart'),
+            
+        Menu::make('Maintenance Logs')
+            ->icon('bs.wrench'),
+           
+    ]),
+
+
+    
         ];
     }
 

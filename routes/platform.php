@@ -31,6 +31,8 @@ use App\Orchid\Screens\Facility\FacilityListScreen;
 use App\Orchid\Screens\Court\CourtScreen;
 use App\Orchid\Screens\Court\CourtEditScreen;
 use App\Orchid\Screens\Court\CourtListScreen;
+use App\Orchid\Screens\TimeSlot\TimeSlotScreen;
+use App\Orchid\Screens\TimeSlot\TimeSlotEditScreen;
 
 
 /*
@@ -146,3 +148,9 @@ Route::screen('courts', CourtListScreen::class)
 
 Route::screen('courts/{court}/edit', CourtEditScreen::class)
     ->name('platform.court.edit');
+
+Route::screen('court-timeslots', TimeSlotScreen::class)
+    ->name('platform.court.timeslot');
+
+Route::screen('timeslots/{slot}/edit', TimeSlotEditScreen::class)
+    ->name('platform.court.timeslot.edit');

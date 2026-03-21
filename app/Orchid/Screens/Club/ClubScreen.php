@@ -67,28 +67,23 @@ class ClubScreen extends Screen
         Layout::table('clubs', [
             
 TD::make('logo', 'شعار النادي')
-    ->width('100px')
+    ->width('70px')
     ->align(TD::ALIGN_CENTER)
     ->render(function ($club) {
-
         if (!$club->logo) {
             return '<span class="text-muted">—</span>';
         }
-
-        // لو متخزن رابط كامل
-        if (str_starts_with($club->logo, 'http')) {
-            $url = $club->logo;
-        } else {
-            $url = asset('storage/' . $club->logo);
-        }
-
+        $url = str_starts_with($club->logo, 'http') 
+            ? $club->logo 
+            : asset('storage/' . $club->logo);
         return "
             <img src='{$url}'
-                 width='50'
-                 height='50'
+                 width='44'
+                 height='44'
                  style='object-fit:cover;
-                        border-radius:8px;
-                        border:1px solid #eee;'>
+                        border-radius:50%;
+                        border:2px solid #eee;
+                        box-shadow:0 1px 4px rgba(0,0,0,0.1);'>
         ";
     }),
 

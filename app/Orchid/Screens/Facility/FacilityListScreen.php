@@ -53,12 +53,12 @@ class FacilityListScreen extends Screen
     {
         return [
             Layout::table('facilities', [
-               TD::make('image', '')
-    ->width('60px')
+             TD::make('image', '')
+    ->width('120px')
     ->align(TD::ALIGN_CENTER)
     ->render(fn($f) => $f->image
-        ? '<img src="' . asset('storage/' . $f->image) . '" style="width:45px;height:45px;object-fit:cover;border-radius:50%;border:2px solid #e8e8e8;box-shadow:0 2px 4px rgba(0,0,0,0.1);">'
-        : '<div style="width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:auto;"><span style="color:white;font-size:16px;">🏟️</span></div>'
+        ? '<img src="' . asset('storage/' . $f->image) . '" style="width:100px;height:65px;object-fit:cover;border-radius:8px;border:2px solid #e8e8e8;box-shadow:0 2px 6px rgba(0,0,0,0.12);">'
+        : '<div style="width:100px;height:65px;border-radius:8px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;margin:auto;"><span style="font-size:28px;">🏟️</span></div>'
     ),
 
 TD::make('name', 'المرفق')

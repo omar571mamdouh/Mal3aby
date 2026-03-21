@@ -12,4 +12,29 @@ class Court extends Model
     {
         return $this->belongsTo(Facility::class);
     }
+
+    public function timeSlots()
+{
+    return $this->hasMany(CourtTimeSlot::class);
+}
+
+public function blackoutDates()
+{
+    return $this->hasMany(BlackoutDate::class);
+}
+
+public function seasonalPricing()
+{
+    return $this->hasMany(SeasonalPricing::class);
+}
+
+public function dynamicPricingRules()
+{
+    return $this->hasMany(DynamicPricingRule::class);
+}
+
+public function maintenanceLogs()
+{
+    return $this->hasMany(MaintenanceLog::class);
+}
 }
