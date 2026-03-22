@@ -48,15 +48,14 @@ class ClubScreen extends Screen
     /**
      * Button commands.
      */
-    public function commandBar(): iterable
-    {
-        return [
-            ModalToggle::make('إضافة نادي')
-                ->modal('addClubModal')
-                ->method('create')
-                ->icon('plus'),
-        ];
-    }
+   public function commandBar(): iterable
+{
+    return [
+        // Button::make('إنشاء')
+        //     ->icon('bs.plus')
+        //     ->method('create'),
+    ];
+}
 
     /**
      * Layouts for the screen.
@@ -64,8 +63,33 @@ class ClubScreen extends Screen
    public function layout(): iterable
 {
     return [
+
+         Layout::rows([
+    Input::make('club.name')
+        ->placeholder('club name')
+        ->title('اسم النادي'),
+
+    Input::make('club.phone')
+        ->placeholder('club phone')
+        ->title('الهاتف'),
+
+    Input::make('club.email')
+        ->placeholder('email')
+        ->title('البريد الإلكتروني')
+        ->type('email'),
+
+    Upload::make('club.logo')
+        ->title('شعار النادي')
+        ->maxFiles(1)
+        ->storage('public'),
+
+    Button::make('إنشاء')
+        ->method('create')
+        ->icon('bs.plus')
+        ->class('btn btn-success'),
+]),
+
         Layout::table('clubs', [
-            
 TD::make('logo', 'شعار النادي')
     ->width('70px')
     ->align(TD::ALIGN_CENTER)
@@ -128,37 +152,7 @@ TD::make('logo', 'شعار النادي')
                 ),
         ]),
 
-        // مودال إضافة نادي جديد
-        Layout::modal('addClubModal', [
-            Layout::rows([
-                Input::make('club.name')
-                    ->title('اسم النادي')
-                    ->prefix('bs.building')
-                    ->placeholder('مثال: نادي الأهلي')
-                    ->required(),
-
-                Input::make('club.phone')
-                    ->title('الهاتف')
-                    ->prefix('bs.telephone')
-                    ->placeholder('مثال: 01012345678'),
-
-                Input::make('club.email')
-                    ->title('البريد الإلكتروني')
-                    ->prefix('bs.envelope')
-                    ->placeholder('example@club.com')
-                    ->type('email'),
-
-                Upload::make('club.logo')
-                    ->title('شعار النادي')
-                    ->acceptedFiles('.png,.jpg,.jpeg,.svg')
-                    ->maxFiles(1)
-                    ->storage('public'),
-            ]),
-        ])
-            ->title('إضافة نادي جديد')
-            ->applyButton('إنشاء')
-            ->closeButton('إلغاء'),
-
+ 
         // مودال تعديل النادي
         Layout::modal('editClubModal', [
             Layout::rows([

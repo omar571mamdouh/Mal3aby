@@ -33,6 +33,10 @@ use App\Orchid\Screens\Court\CourtEditScreen;
 use App\Orchid\Screens\Court\CourtListScreen;
 use App\Orchid\Screens\TimeSlot\TimeSlotScreen;
 use App\Orchid\Screens\TimeSlot\TimeSlotEditScreen;
+use App\Orchid\Screens\BlackoutDate\BlackoutDateScreen;
+use App\Orchid\Screens\BlackoutDate\BlackoutDateEditScreen;
+use App\Orchid\Screens\SeasonalPricing\SeasonalPricingScreen;
+use App\Orchid\Screens\SeasonalPricing\SeasonalPricingEditScreen;
 
 
 /*
@@ -154,3 +158,23 @@ Route::screen('court-timeslots', TimeSlotScreen::class)
 
 Route::screen('timeslots/{slot}/edit', TimeSlotEditScreen::class)
     ->name('platform.court.timeslot.edit');
+
+// Blackout Dates
+Route::screen('blackout-dates/create', BlackoutDateEditScreen::class)
+    ->name('platform.blackout-dates.create');
+
+Route::screen('blackout-dates/{blackout}/edit', BlackoutDateEditScreen::class)
+    ->name('platform.blackout-dates.edit');
+
+Route::screen('blackout-dates', BlackoutDateScreen::class)
+    ->name('platform.blackout-dates');
+
+
+Route::screen('seasonal-pricing', SeasonalPricingScreen::class)
+    ->name('platform.seasonal-pricing');
+
+Route::screen('seasonal-pricing/{pricing}/edit', SeasonalPricingEditScreen::class)
+    ->name('platform.seasonal-pricing.edit');
+
+Route::screen('seasonal-pricing/create', SeasonalPricingEditScreen::class)
+    ->name('platform.seasonal-pricing.create');

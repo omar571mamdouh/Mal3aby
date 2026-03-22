@@ -13,19 +13,21 @@ return new class extends Migration
     {
         Schema::create('seasonal_pricing', function (Blueprint $table) {
 
-    $table->id();
+            $table->id();
 
-    $table->foreignId('court_id')
-        ->constrained()
-        ->cascadeOnDelete();
+            $table->foreignId('court_id')
+                ->constrained()
+                ->cascadeOnDelete();
 
-    $table->date('start_date');
-    $table->date('end_date');
+            $table->date('start_date');
+            $table->date('end_date');
 
-    $table->decimal('price',8,2);
+            $table->string('season')->nullable(); // الصيف، الشتاء، إلخ
 
-    $table->timestamps();
-});
+            $table->decimal('price', 8, 2);
+
+            $table->timestamps();
+        });
     }
 
     /**

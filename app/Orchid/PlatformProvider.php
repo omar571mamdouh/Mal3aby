@@ -76,11 +76,13 @@ class PlatformProvider extends OrchidServiceProvider
             ->route('platform.court.timeslot'),
 
         Menu::make('Blackout Dates')
-            ->icon('bs.calendar-x'),
+            ->icon('bs.calendar-x')
+            ->route('platform.blackout-dates'),
            
 
         Menu::make('Seasonal Pricing')
-            ->icon('bs.cash-stack'),
+            ->icon('bs.cash-stack')
+            ->route('platform.seasonal-pricing'),
         
 
         Menu::make('Dynamic Pricing Rules')
