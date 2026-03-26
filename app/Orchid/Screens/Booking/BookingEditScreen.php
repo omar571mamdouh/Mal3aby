@@ -12,26 +12,46 @@ use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Support\Facades\Toast;
 
 class BookingEditScreen extends Screen
 {
-    public $name = 'Booking';
-    public $description = 'Create or edit booking';
+    public ?Booking $booking = null;
 
-    public function query(?Booking $booking): array
+    public function name(): string
+    {
+        return $this->booking?->exists
+            ? 'Edit Booking #' . $this->booking->id
+            : 'New Booking';
+    }
+
+    public function description(): string
+    {
+        return $this->booking?->exists
+            ? 'Update booking for ' . ($this->booking->customer?->first_name ?? 'customer')
+            : 'Fill in the details to create a new booking';
+    }
+
+    public function query(Booking $booking): array
     {
         return [
-            'booking' => $booking ?? new Booking(),
+            'booking' => $booking,
         ];
     }
 
     public function commandBar(): iterable
     {
         return [
-            Button::make('Save')
+            Link::make('Cancel')
+                ->icon('bs.x-lg')
+                ->route('platform.bookings.list')
+                ->class('btn btn-outline-secondary'),
+
+            Button::make($this->booking?->exists ? 'Update Booking' : 'Create Booking')
                 ->method('save')
-                ->icon('bs.check'),
+                ->icon('bs.check-lg')
+                ->class('btn btn-primary px-4'),
         ];
     }
 
@@ -40,56 +60,72 @@ class BookingEditScreen extends Screen
         return [
             Layout::rows([
 
+                Input::make('booking.id')->type('hidden'),
+
                 Select::make('booking.customer_id')
                     ->title('Customer')
-                    ->options(fn() => Customer::pluck('first_name', 'id'))
+                    ->options(fn() => Customer::orderBy('first_name')->pluck('first_name', 'id'))
+                    ->empty('— Select customer —')
                     ->required(),
 
                 Select::make('booking.court_id')
                     ->title('Court')
-                    ->options(fn() => Court::pluck('name', 'id'))
+                    ->options(fn() => Court::orderBy('name')->pluck('name', 'id'))
+                    ->empty('— Select court —')
                     ->required(),
 
                 Input::make('booking.booking_date')
                     ->type('date')
-                    ->title('Date')
+                    ->title('Booking Date')
                     ->required(),
 
                 Select::make('booking.time_slot_id')
                     ->title('Time Slot')
-                    ->options(fn() => CourtTimeSlot::pluck('start_time', 'id'))
+                    ->options(fn() => CourtTimeSlot::orderBy('start_time')
+                        ->get()
+                        ->mapWithKeys(fn($slot) => [
+                            $slot->id => $slot->start_time . ' – ' . $slot->end_time,
+                        ]))
+                    ->empty('— Select time slot —')
                     ->required(),
 
                 Input::make('booking.price')
                     ->type('number')
-                    ->title('Price')
+                    ->title('Price (EGP)')
+                    ->placeholder('0.00')
                     ->required(),
 
                 Select::make('booking.status')
                     ->title('Status')
                     ->options([
-                        'pending' => 'Pending',
-                        'confirmed' => 'Confirmed',
-                        'cancelled' => 'Cancelled',
-                        'completed' => 'Completed',
+                        'pending'   => '⏳ Pending',
+                        'confirmed' => '✅ Confirmed',
+                        'cancelled' => '✖ Cancelled',
+                        'completed' => '🏁 Completed',
                     ])
                     ->required(),
-
             ]),
         ];
     }
 
-   public function save(Request $request)
-{
-    $data = $request->get('booking');
+    public function save(Booking $booking, Request $request)
+    {
+        $data = $request->validate([
+            'booking.customer_id'  => 'required|exists:customers,id',
+            'booking.court_id'     => 'required|exists:courts,id',
+            'booking.booking_date' => 'required|date',
+            'booking.time_slot_id' => 'required|exists:court_time_slots,id',
+            'booking.price'        => 'required|numeric|min:0',
+            'booking.status'       => 'required|in:pending,confirmed,cancelled,completed',
+        ]);
 
-    $booking = Booking::findOrNew($data['id'] ?? null);
+        $booking->fill($data['booking'])->save();
 
-    $booking->fill($data);
-    $booking->save();
+        Toast::info($booking->wasRecentlyCreated
+            ? 'Booking created successfully!'
+            : 'Booking updated successfully!'
+        );
 
-    Toast::info('Booking saved successfully!');
-
-    return redirect()->route('platform.bookings.list');
-}
+        return redirect()->route('platform.bookings.list');
+    }
 }

@@ -20,7 +20,6 @@ use App\Orchid\Screens\User\UserProfileScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 use App\Orchid\Screens\Club\ClubScreen;
-use App\Orchid\Screens\Club\ClubListScreen;
 use App\Orchid\Screens\Club\ClubEditScreen;
 use App\Orchid\Screens\Branch\BranchScreen;
 use App\Orchid\Screens\Branch\BranchEditScreen;
@@ -138,22 +137,20 @@ Route::screen('/examples/cards', ExampleCardsScreen::class)->name('platform.exam
 
 
 
-// Club routes
 Route::screen('clubs', ClubScreen::class)->name('platform.club');
 
-// Route::screen('idea', Idea::class, 'platform.screens.idea');
-
-
-Route::screen('club', ClubListScreen::class)->name('platform.club.list');
-Route::screen('club/{club?}/edit', ClubEditScreen::class)->name('platform.club.edit');
+Route::screen('clubs/create', ClubEditScreen::class)->name('platform.club.create');
+Route::screen('clubs/{club}/edit', ClubEditScreen::class)->name('platform.club.edit');
 
 
 Route::screen('branches', BranchScreen::class)
     ->name('platform.branch');
 
+Route::screen('branches/create', BranchEditScreen::class)
+    ->name('platform.branch.create');
 
-Route::screen('branch', BranchListScreen::class)->name('platform.branch.list');
-Route::screen('branch/{branch?}/edit', BranchEditScreen::class)->name('platform.branch.edit');
+Route::screen('branches/{branch}/edit', BranchEditScreen::class)
+    ->name('platform.branch.edit');
 
 // صفحة عرض كل المرافق
 Route::screen('facilities', FacilityListScreen::class)

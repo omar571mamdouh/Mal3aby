@@ -13,6 +13,7 @@ class Club extends Model
         'phone',
         'email',
         'logo',
+        'active'
     ];
     
    public function branches()

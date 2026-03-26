@@ -6,278 +6,118 @@ use Orchid\Screen\Screen;
 use App\Models\Club;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\TD;
-use Orchid\Screen\Fields\Input;
-use Orchid\Screen\Fields\Upload;
-use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Actions\Button;
-use Orchid\Screen\Actions\DropDown;
-use Orchid\Support\Facades\Alert;
-use Illuminate\Http\Request;
-use Orchid\Support\Color;
-use Orchid\Attachment\Models\Attachment;
 use Orchid\Screen\Actions\Link;
+use Orchid\Support\Facades\Alert;
 
 class ClubScreen extends Screen
 {
-    /**
-     * Query data for the screen.
-     */
-    public function query(Club $club): iterable
+    public function query(): iterable
     {
         return [
-             'clubs' => Club::with('branches')->latest()->paginate(15),
+            'clubs' => Club::with('branches')->latest()->paginate(15),
         ];
     }
 
-    /**
-     * Display header name.
-     */
     public function name(): ?string
     {
         return 'إدارة الأندية';
     }
 
-    /**
-     * Display header description.
-     */
     public function description(): ?string
     {
         return 'إدارة جميع الأندية في النظام';
     }
 
-    /**
-     * Button commands.
-     */
-   public function commandBar(): iterable
-{
-    return [
-        // Button::make('إنشاء')
-        //     ->icon('bs.plus')
-        //     ->method('create'),
-    ];
-}
-
-    /**
-     * Layouts for the screen.
-     */
-   public function layout(): iterable
-{
-    return [
-
-         Layout::rows([
-    Input::make('club.name')
-        ->placeholder('club name')
-        ->title('اسم النادي'),
-
-    Input::make('club.phone')
-        ->placeholder('club phone')
-        ->title('الهاتف'),
-
-    Input::make('club.email')
-        ->placeholder('email')
-        ->title('البريد الإلكتروني')
-        ->type('email'),
-
-    Upload::make('club.logo')
-        ->title('شعار النادي')
-        ->maxFiles(1)
-        ->storage('public'),
-
-    Button::make('إنشاء')
-        ->method('create')
-        ->icon('bs.plus')
-        ->class('btn btn-success'),
-]),
-
-        Layout::table('clubs', [
-TD::make('logo', 'شعار النادي')
-    ->width('70px')
-    ->align(TD::ALIGN_CENTER)
-    ->render(function ($club) {
-        if (!$club->logo) {
-            return '<span class="text-muted">—</span>';
-        }
-        $url = str_starts_with($club->logo, 'http') 
-            ? $club->logo 
-            : asset('storage/' . $club->logo);
-        return "
-            <img src='{$url}'
-                 width='44'
-                 height='44'
-                 style='object-fit:cover;
-                        border-radius:50%;
-                        border:2px solid #eee;
-                        box-shadow:0 1px 4px rgba(0,0,0,0.1);'>
-        ";
-    }),
-
-            TD::make('name', 'النادي')
-                ->sort()
-                ->filter(TD::FILTER_TEXT)
-                ->render(fn($club) => '
-                    <div style="font-weight:600;color:#1a1a2e;">' . $club->name . '</div>
-                '),
-
-            TD::make('phone', 'التواصل')
-                ->render(fn($club) => '
-                    <div>
-                        <div style="font-size:12px;">📞 ' . ($club->phone ?? '—') . '</div>
-                        <div style="font-size:12px;margin-top:3px;">✉️ ' . ($club->email ?? '—') . '</div>
-                    </div>
-                '),
-
-            TD::make('active', 'الحالة')
-                ->align(TD::ALIGN_CENTER)
-                ->render(fn($club) => $club->active
-                    ? '<span style="display:inline-flex;align-items:center;gap:4px;background:#e8f5e9;color:#2e7d32;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;"><span style="width:6px;height:6px;background:#2e7d32;border-radius:50%;display:inline-block;"></span> نشط</span>'
-                    : '<span style="display:inline-flex;align-items:center;gap:4px;background:#ffebee;color:#c62828;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;"><span style="width:6px;height:6px;background:#c62828;border-radius:50%;display:inline-block;"></span> غير نشط</span>'
-                ),
-
-            TD::make('actions', 'الإجراءات')
-                ->align(TD::ALIGN_CENTER)
-                ->width('160px')
-                ->render(fn($club) =>
-                    '<div style="display:flex;gap:6px;justify-content:center;">'
-                    . Link::make('تعديل')
-                        ->route('platform.club.edit', $club)
-                        ->icon('pencil')
-                        ->class('btn btn-sm btn-primary')
-                    . Button::make('حذف')
-                        ->method('delete')
-                        ->confirm('هل أنت متأكد من حذف النادي ' . $club->name . '؟')
-                        ->parameters(['club' => $club->id])
-                        ->icon('trash')
-                        ->class('btn btn-sm btn-danger')
-                    . '</div>'
-                ),
-        ]),
-
- 
-        // مودال تعديل النادي
-        Layout::modal('editClubModal', [
-            Layout::rows([
-                Input::make('club.name')
-                    ->title('اسم النادي')
-                    ->prefix('bs.building')
-                    ->placeholder('مثال: نادي الأهلي')
-                    ->required(),
-
-                Input::make('club.phone')
-                    ->title('الهاتف')
-                    ->prefix('bs.telephone')
-                    ->placeholder('مثال: 01012345678'),
-
-                Input::make('club.email')
-                    ->title('البريد الإلكتروني')
-                    ->prefix('bs.envelope')
-                    ->placeholder('example@club.com')
-                    ->type('email'),
-
-                Upload::make('club.logo')
-                    ->title('شعار النادي')
-                    ->acceptedFiles('.png,.jpg,.jpeg,.svg')
-                    ->maxFiles(1)
-                    ->storage('public'),
-            ]),
-        ])
-            ->title('تعديل النادي')
-            ->applyButton('تحديث')
-            ->closeButton('إلغاء')
-            ->async('asyncGetClub'),
-    ];
-}
-
-    /**
-     * Async data for edit modal.
-     */
-    public function asyncGetClub(Club $club): array
+    public function commandBar(): iterable
     {
         return [
-            'club' => $club,
+            Link::make('إضافة نادي جديد')
+                ->icon('bs.plus-circle')
+                ->route('platform.club.create'),
         ];
     }
 
-    /**
-     * ===== مساعد لتحويل attachment ID إلى path =====
-     */
-    private function resolveLogoPath(Request $request): ?string
+    public function layout(): iterable
     {
-        $attachmentId = $request->input('club.logo')[0] ?? null;
+        return [
+            Layout::table('clubs', [
 
-        if (!$attachmentId) {
-            return null;
-        }
+                TD::make('logo', 'الشعار')
+                    ->width('70px')
+                    ->align(TD::ALIGN_CENTER)
+                    ->render(function (Club $club) {
+                        if (!$club->logo) {
+                            $initials = strtoupper(mb_substr($club->name, 0, 2));
+                            return "<div style='width:42px;height:42px;border-radius:50%;
+                                               background:linear-gradient(135deg,#4f46e5,#7c3aed);
+                                               color:#fff;font-size:13px;font-weight:700;
+                                               display:flex;align-items:center;justify-content:center;
+                                               margin:auto'>{$initials}</div>";
+                        }
+                        $url = str_starts_with($club->logo, 'http')
+                            ? $club->logo
+                            : asset('storage/' . $club->logo);
+                        return "<img src='{$url}' width='42' height='42'
+                                     style='object-fit:cover;border-radius:50%;
+                                            border:2px solid #e5e7eb;
+                                            box-shadow:0 1px 4px rgba(0,0,0,.08);
+                                            display:block;margin:auto'>";
+                    }),
 
-        $attachment = Attachment::find($attachmentId);
+                TD::make('name', 'النادي')
+                    ->sort()
+                    ->filter(TD::FILTER_TEXT)
+                    ->render(fn(Club $club) =>
+                        "<span style='font-weight:600;font-size:13.5px;color:#1e1b4b'>{$club->name}</span>"
+                    ),
 
-        if (!$attachment) {
-            return null;
-        }
+                TD::make('phone', 'التواصل')
+                    ->render(fn(Club $club) =>
+                        "<div style='font-size:12.5px;line-height:1.8'>
+                            <div>📞 " . ($club->phone ?? '—') . "</div>
+                            <div>✉️ " . ($club->email ?? '—') . "</div>
+                        </div>"
+                    ),
 
-        // بيرجع مسار زي: 2025/02/filename.jpg
-        return $attachment->path . $attachment->name . '.' . $attachment->extension;
+                TD::make('active', 'الحالة')
+                    ->align(TD::ALIGN_CENTER)
+                    ->render(fn(Club $club) => $club->active
+                        ? "<span style='display:inline-flex;align-items:center;gap:5px;
+                                        background:#dcfce7;color:#166534;border:1px solid #86efac;
+                                        padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600'>
+                                <span style='width:6px;height:6px;background:#16a34a;border-radius:50%;display:inline-block'></span>
+                                نشط
+                           </span>"
+                        : "<span style='display:inline-flex;align-items:center;gap:5px;
+                                        background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;
+                                        padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600'>
+                                <span style='width:6px;height:6px;background:#dc2626;border-radius:50%;display:inline-block'></span>
+                                غير نشط
+                           </span>"
+                    ),
+
+                TD::make('actions', 'الإجراءات')
+                    ->align(TD::ALIGN_RIGHT)
+                    ->width('110px')
+                    ->render(fn(Club $club) =>
+                        "<div style='display:flex;justify-content:flex-end;gap:6px'>"
+                        . Link::make('تعديل')
+                            ->route('platform.club.edit', $club)
+                            ->icon('pencil')
+                            ->class('btn btn-sm btn-primary')
+                        . Button::make('حذف')
+                            ->method('delete')
+                            ->confirm('هل أنت متأكد من حذف النادي ' . $club->name . '؟')
+                            ->parameters(['club' => $club->id])
+                            ->icon('trash')
+                            ->class('btn btn-sm btn-danger')
+                        . "</div>"
+                    ),
+            ]),
+        ];
     }
 
-    /**
-     * Create a new club.
-     */
-    public function create(Request $request)
-    {
-        $request->validate([
-            'club.name'  => 'required|string|max:255',
-            'club.email' => 'nullable|email|unique:clubs,email',
-            'club.phone' => 'nullable|string|max:20',
-        ]);
-
-        $data = $request->get('club');
-
-        // ===== الحل: نحول الـ ID لـ path حقيقي =====
-        $logoPath = $this->resolveLogoPath($request);
-        if ($logoPath) {
-            $data['logo'] = $logoPath;
-        } else {
-            unset($data['logo']);
-        }
-
-        Club::create($data);
-
-        Alert::success('تم إنشاء النادي بنجاح!');
-
-        return redirect()->route('platform.club');
-    }
-
-    /**
-     * Update existing club.
-     */
-    public function update(Request $request, Club $club)
-    {
-        $request->validate([
-            'club.name'  => 'required|string|max:255',
-            'club.email' => 'nullable|email|unique:clubs,email,' . $club->id,
-            'club.phone' => 'nullable|string|max:20',
-        ]);
-
-        $data = $request->get('club');
-
-        // ===== الحل: نحول الـ ID لـ path حقيقي =====
-        $logoPath = $this->resolveLogoPath($request);
-        if ($logoPath) {
-            $data['logo'] = $logoPath;
-        } else {
-            // لو مفيش صورة جديدة، احتفظ بالقديمة
-            unset($data['logo']);
-        }
-
-        $club->update($data);
-
-        Alert::info('تم تحديث بيانات النادي بنجاح!');
-
-        return redirect()->route('platform.club');
-    }
-
-    /**
-     * Delete club.
-     */
     public function delete(Club $club)
     {
         $club->delete();
@@ -287,5 +127,3 @@ TD::make('logo', 'شعار النادي')
         return redirect()->route('platform.club');
     }
 }
-
-

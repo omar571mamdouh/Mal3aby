@@ -5,179 +5,171 @@ namespace App\Orchid\Screens\Club;
 use Orchid\Screen\Screen;
 use App\Models\Club;
 use Orchid\Screen\Fields\Input;
-use Orchid\Screen\Fields\Upload;
+use Orchid\Screen\Fields\Picture;
+use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Support\Facades\Toast;
-use Illuminate\Http\Request;
 use Orchid\Support\Color;
 use Orchid\Attachment\Models\Attachment;
-use Orchid\Screen\TD;
-use Orchid\Screen\Fields\Picture;
+use Illuminate\Http\Request;
 
 class ClubEditScreen extends Screen
 {
-    /**
-     * Property عامة لتخزين النادي الحالي
-     */
     public ?Club $club = null;
 
     /**
-     * Query data for the screen.
+     * Query data for the screen
      */
-    public function query(Club $club): iterable
-{
-    $this->club = $club;
-
-    return [
-        'club' => $club,
-        'branches' => $club->exists
-            ? $club->branches()->latest()->get()
-            : collect(),
-    ];
-}
-
-    /**
-     * Display header name.
-     */
-    public function name(): ?string
+    public function query(?Club $club = null): iterable
     {
-        return $this->club && $this->club->exists
-            ? 'تعديل النادي: ' . $this->club->name
-            : 'إضافة نادي';
+        $this->club = $club ?? new Club();
+
+        return [
+            'club'     => $this->club,
+            'branches' => $this->club->exists ? $this->club->branches()->latest()->get() : collect(),
+        ];
     }
 
-    /**
-     * Display command bar buttons.
-     */
+    public function name(): ?string
+    {
+        return $this->club->exists
+            ? 'تعديل النادي: ' . $this->club->name
+            : 'إضافة نادي جديد';
+    }
+
+    public function description(): ?string
+    {
+        return $this->club->exists
+            ? 'تعديل بيانات النادي'
+            : 'إنشاء نادي جديد في النظام';
+    }
+
     public function commandBar(): iterable
     {
         return [
             Button::make('حفظ')
+                ->icon('bs.check-circle')
                 ->type(Color::SUCCESS())
                 ->method('save'),
         ];
     }
 
-    /**
-     * Layouts for the screen.
-     */
-   public function layout(): iterable
-{
-    return [
-        Layout::columns([
-            // === العمود الأيسر - المعلومات الأساسية ===
-            Layout::rows([
-                Input::make('club.name')
-                    ->title('اسم النادي')
-                    ->prefix('bs.building')
-                    ->placeholder('مثال: نادي الأهلي')
-                    ->help('الاسم الرسمي للنادي')
-                    ->required(),
+    public function layout(): iterable
+    {
+        return [
+            Layout::columns([
 
-                Input::make('club.phone')
-                    ->title('الهاتف')
-                    ->prefix('bs.telephone')
-                    ->placeholder('مثال: 01012345678')
-                    ->help('رقم التواصل الرئيسي'),
+                // العمود الأيسر - البيانات الأساسية
+                Layout::rows([
+                    Input::make('club.name')
+                        ->title('اسم النادي')
+                        ->addon('bs.building')
+                        ->placeholder('مثال: نادي الأهلي')
+                        ->required(),
 
-                Input::make('club.email')
-                    ->title('البريد الإلكتروني')
-                    ->prefix('bs.envelope')
-                    ->placeholder('example@club.com')
-                    ->help('البريد الرسمي للنادي')
-                    ->type('email'),
+                    Input::make('club.phone')
+                        ->title('الهاتف')
+                        ->addon('bs.telephone')
+                        ->placeholder('مثال: 01012345678')
+                        ->help('رقم التواصل الرئيسي'),
+
+                    Input::make('club.email')
+                        ->title('البريد الإلكتروني')
+                        ->addon('bs.envelope')
+                        ->placeholder('example@club.com')
+                        ->type('email')
+                        ->help('البريد الرسمي للنادي'),
+
+                    Select::make('club.active')
+                        ->title('الحالة')
+                        ->options([1 => 'نشط', 0 => 'غير نشط'])
+                        ->value($this->club?->active ?? 1)
+                        ->required(),
+                ]),
+
+                // العمود الأيمن - الشعار
+                Layout::rows([
+                    Picture::make('club.logo')
+                        ->title('شعار النادي')
+                        ->acceptedFiles('image/*')
+                        ->storage('public')
+                        ->help('يفضل صورة مربعة بحجم 200×200 بكسل'),
+
+                    // خيار إزالة الشعار إذا موجود
+                    CheckBox::make('club.remove_logo')
+                        ->value(false)
+                        ->title('إزالة الشعار الحالي')
+                        ->canSee($this->club?->logo !== null)
+                        ->help('اختر لإزالة الشعار الحالي'),
+                ]),
             ]),
 
-            // === العمود الأيمن - الشعار ===
-            Layout::rows([
-                Picture::make('club.logo')
-                    ->title('شعار النادي')
-                    ->acceptedFiles('image/*')
-                    ->help('يُفضل صورة مربعة بحجم 200×200 بكسل'),
-            ]),
-        ]),
+            // جدول الفروع - يظهر فقط عند التعديل
+            Layout::table('branches', [
+                \Orchid\Screen\TD::make('name', 'الفرع')
+                    ->render(fn($b) => "<strong>{$b->name}</strong>"),
 
-        // === جدول الفروع ===
-        Layout::table('branches', [
-            TD::make('name', 'الفرع')
-                ->render(fn($b) => '
-                    <div style="font-weight:600;color:#1a1a2e;">' . $b->name . '</div>
-                '),
+                \Orchid\Screen\TD::make('city', 'المدينة')
+                    ->render(fn($b) => $b->city ? "<span style='color:#16a34a'>📍 {$b->city}</span>" : '—'),
 
-            TD::make('city', 'المدينة')
-                ->render(fn($b) => $b->city
-                    ? '<span style="font-size:12px;">📍 ' . $b->city . '</span>'
-                    : '<span style="color:#aaa;">—</span>'
-                ),
+                \Orchid\Screen\TD::make('phone', 'الهاتف')
+                    ->render(fn($b) => $b->phone ? "📞 {$b->phone}" : '—'),
 
-            TD::make('phone', 'الهاتف')
-                ->render(fn($b) => $b->phone
-                    ? '<span style="font-size:12px;">📞 ' . $b->phone . '</span>'
-                    : '<span style="color:#aaa;">—</span>'
-                ),
-
-            TD::make('created_at', 'تاريخ الإضافة')
-                ->render(fn($b) => $b->created_at
-                    ? '<span style="font-size:12px;color:#888;">📅 ' . $b->created_at->format('Y-m-d') . '</span>'
-                    : '<span style="color:#aaa;">—</span>'
-                ),
-        ])->title('فروع النادي')
-          ->canSee($this->club?->exists),
-    ];
-}
-
-    /**
-     * Save or update club.
-     */
-public function save(Request $request)
-{
-    $clubId = $request->route('club');
-    $club   = $clubId ? Club::findOrFail($clubId) : new Club();
-
-    $data = $request->input('club', []);
-
-    // نجيب الـ attachment ID
-    $logoIds = (array) $request->input('club.logo', []);
-
-    if (!empty($logoIds)) {
-
-        $attachment = \Orchid\Attachment\Models\Attachment::find(end($logoIds));
-
-        if ($attachment) {
-
-            $newPath = $attachment->path . $attachment->name . '.' . $attachment->extension;
-
-            // لو في صورة قديمة واتغيرت
-            if ($club->exists && $club->logo && $club->logo !== $newPath) {
-                $oldFile = storage_path('app/public/' . $club->logo);
-                if (file_exists($oldFile)) {
-                    unlink($oldFile); // حذف الصورة القديمة
-                }
-            }
-
-            $data['logo'] = $newPath; // نخزن path فقط
-        }
-
-    } else {
-        // المستخدم ضغط Remove → نحذف الصورة القديمة من السيرفر والـ DB
-        if ($club->exists && $club->logo) {
-            $oldFile = storage_path('app/public/' . $club->logo);
-            if (file_exists($oldFile)) {
-                unlink($oldFile); // حذف الصورة القديمة
-            }
-        }
-        $data['logo'] = null; // نحذف path الصورة من قاعدة البيانات
+                \Orchid\Screen\TD::make('created_at', 'تاريخ الإضافة')
+                    ->render(fn($b) => $b->created_at ? $b->created_at->format('Y-m-d') : '—'),
+            ])
+            ->title('فروع النادي')
+            ->canSee($this->club?->exists ?? false),
+        ];
     }
 
-    $club->fill($data)->save();
+    /**
+     * حفظ أو تعديل النادي
+     */
+    public function save(Request $request)
+    {
+        $request->validate([
+            'club.name'   => 'required|string|max:255',
+            'club.email'  => 'nullable|email',
+            'club.phone'  => 'nullable|string|max:20',
+            'club.active' => 'required|boolean',
+            'club.logo'   => 'nullable',
+        ]);
 
-    Toast::success(
-        $club->wasRecentlyCreated
-            ? 'تم إنشاء النادي'
-            : 'تم تحديث النادي'
-    );
+        $data = [
+            'name'   => $request->input('club.name'),
+            'email'  => $request->input('club.email'),
+            'phone'  => $request->input('club.phone'),
+            'active' => $request->input('club.active', 1),
+        ];
 
-    return redirect()->route('platform.club');
-}
+        // معالجة الشعار
+        if ($request->filled('club.remove_logo')) {
+            $data['logo'] = null;
+        } else {
+            $logoValue = $request->input('club.logo');
+            if ($logoValue) {
+                if (is_numeric($logoValue)) {
+                    $attachment = Attachment::find($logoValue);
+                    if ($attachment) {
+                        $data['logo'] = $attachment->path . $attachment->name . '.' . $attachment->extension;
+                    }
+                } else {
+                    $data['logo'] = $logoValue;
+                }
+            }
+        }
+
+        $club = $this->club ?? new Club();
+        $club->fill($data)->save();
+
+        Toast::success(
+            $request->filled('club.remove_logo') ? 'تم إزالة الشعار بنجاح!' :
+            ($club->wasRecentlyCreated ? 'تم إنشاء النادي بنجاح!' : 'تم تحديث النادي بنجاح!')
+        );
+
+        return redirect()->route('platform.club');
+    }
 }
