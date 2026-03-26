@@ -37,6 +37,22 @@ use App\Orchid\Screens\BlackoutDate\BlackoutDateScreen;
 use App\Orchid\Screens\BlackoutDate\BlackoutDateEditScreen;
 use App\Orchid\Screens\SeasonalPricing\SeasonalPricingScreen;
 use App\Orchid\Screens\SeasonalPricing\SeasonalPricingEditScreen;
+use App\Orchid\Screens\DynamicPricingRule\DynamicPricingRuleListScreen;
+use App\Orchid\Screens\DynamicPricingRule\DynamicPricingRuleEditScreen;
+use App\Orchid\Screens\MaintenanceLogs\MaintenanceLogsListScreen;
+use  App\Orchid\Screens\MaintenanceLogs\MaintenanceLogsEditScreen;
+use App\Orchid\Screens\Customer\CustomerScreen;
+use App\Orchid\Screens\Customer\CustomerEditScreen;
+use App\Orchid\Screens\CustomerAddress\CustomerAddressScreen;
+use App\Orchid\Screens\CustomerAddress\CustomerAddressEditScreen;
+use App\Orchid\Screens\CustomerNote\CustomerNoteListScreen;
+use App\Orchid\Screens\CustomerNote\CustomerNoteEditScreen;
+use App\Orchid\Screens\CustomerTag\CustomerTagScreen;
+use App\Orchid\Screens\CustomerTag\CustomerTagEditScreen;
+use App\Orchid\Screens\Booking\BookingScreen;
+USE App\Orchid\Screens\Booking\BookingEditScreen;
+
+
 
 
 /*
@@ -57,56 +73,56 @@ Route::screen('/main', PlatformScreen::class)
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)
     ->name('platform.profile')
-    ->breadcrumbs(fn (Trail $trail) => $trail
+    ->breadcrumbs(fn(Trail $trail) => $trail
         ->parent('platform.index')
         ->push(__('Profile'), route('platform.profile')));
 
 // Platform > System > Users > User
 Route::screen('users/{user}/edit', UserEditScreen::class)
     ->name('platform.systems.users.edit')
-    ->breadcrumbs(fn (Trail $trail, $user) => $trail
+    ->breadcrumbs(fn(Trail $trail, $user) => $trail
         ->parent('platform.systems.users')
         ->push($user->name, route('platform.systems.users.edit', $user)));
 
 // Platform > System > Users > Create
 Route::screen('users/create', UserEditScreen::class)
     ->name('platform.systems.users.create')
-    ->breadcrumbs(fn (Trail $trail) => $trail
+    ->breadcrumbs(fn(Trail $trail) => $trail
         ->parent('platform.systems.users')
         ->push(__('Create'), route('platform.systems.users.create')));
 
 // Platform > System > Users
 Route::screen('users', UserListScreen::class)
     ->name('platform.systems.users')
-    ->breadcrumbs(fn (Trail $trail) => $trail
+    ->breadcrumbs(fn(Trail $trail) => $trail
         ->parent('platform.index')
         ->push(__('Users'), route('platform.systems.users')));
 
 // Platform > System > Roles > Role
 Route::screen('roles/{role}/edit', RoleEditScreen::class)
     ->name('platform.systems.roles.edit')
-    ->breadcrumbs(fn (Trail $trail, $role) => $trail
+    ->breadcrumbs(fn(Trail $trail, $role) => $trail
         ->parent('platform.systems.roles')
         ->push($role->name, route('platform.systems.roles.edit', $role)));
 
 // Platform > System > Roles > Create
 Route::screen('roles/create', RoleEditScreen::class)
     ->name('platform.systems.roles.create')
-    ->breadcrumbs(fn (Trail $trail) => $trail
+    ->breadcrumbs(fn(Trail $trail) => $trail
         ->parent('platform.systems.roles')
         ->push(__('Create'), route('platform.systems.roles.create')));
 
 // Platform > System > Roles
 Route::screen('roles', RoleListScreen::class)
     ->name('platform.systems.roles')
-    ->breadcrumbs(fn (Trail $trail) => $trail
+    ->breadcrumbs(fn(Trail $trail) => $trail
         ->parent('platform.index')
         ->push(__('Roles'), route('platform.systems.roles')));
 
 // Example...
 Route::screen('example', ExampleScreen::class)
     ->name('platform.example')
-    ->breadcrumbs(fn (Trail $trail) => $trail
+    ->breadcrumbs(fn(Trail $trail) => $trail
         ->parent('platform.index')
         ->push('Example Screen'));
 
@@ -178,3 +194,71 @@ Route::screen('seasonal-pricing/{pricing}/edit', SeasonalPricingEditScreen::clas
 
 Route::screen('seasonal-pricing/create', SeasonalPricingEditScreen::class)
     ->name('platform.seasonal-pricing.create');
+
+
+Route::screen('dynamic-pricing', DynamicPricingRuleListScreen::class)
+    ->name('platform.dynamic-pricing.list');
+
+Route::screen('dynamic-pricing/create', DynamicPricingRuleEditScreen::class)
+    ->name('platform.dynamic-pricing.create');
+
+Route::screen('dynamic-pricing/{rule}/edit', DynamicPricingRuleEditScreen::class)
+    ->name('platform.dynamic-pricing.edit');
+
+
+Route::screen('maintenance-logs', MaintenanceLogsListScreen::class)
+    ->name('platform.maintenance-logs.list');
+
+Route::screen('maintenance-logs/create', MaintenanceLogsEditScreen::class)
+    ->name('platform.maintenance-logs.create');
+
+Route::screen('maintenance-logs/{log}/edit', MaintenanceLogsEditScreen::class)
+    ->name('platform.maintenance-logs.edit');
+
+Route::screen('/customers', CustomerScreen::class)
+    ->name('platform.customer.list');
+
+Route::screen('/customers/{customer?}/edit', CustomerEditScreen::class)
+    ->name('platform.customer.edit');
+
+Route::screen('/customers/create', CustomerEditScreen::class)
+    ->name('platform.customer.create');
+
+// List Screen
+Route::screen('/customer-addresses', CustomerAddressScreen::class)
+    ->name('platform.customer.address.list');
+
+// Create
+Route::screen('/customer-addresses/create', CustomerAddressEditScreen::class)
+    ->name('platform.customer.address.create');
+
+// Edit
+Route::screen('/customer-addresses/{address}/edit', CustomerAddressEditScreen::class)
+    ->name('platform.customer.address.edit');
+
+Route::screen('customer-notes', CustomerNoteListScreen::class)
+    ->name('platform.customer.notes');
+
+Route::screen('customer-notes/create', CustomerNoteEditScreen::class)
+    ->name('platform.customer.notes.create');
+
+Route::screen('customer-notes/{note}/edit', CustomerNoteEditScreen::class)
+    ->name('platform.customer.notes.edit');
+
+Route::screen('customer-tags', CustomerTagScreen::class)
+    ->name('platform.customer.tags.list');
+
+Route::screen('customer-tags/{tag}/edit', CustomerTagEditScreen::class)
+    ->name('platform.customer.tags.edit');
+
+Route::screen('customer-tags/create', CustomerTagEditScreen::class)
+    ->name('platform.customer.tags.create');
+
+Route::screen('bookings', BookingScreen::class)
+    ->name('platform.bookings.list');
+
+Route::screen('bookings/create', BookingEditScreen::class)
+    ->name('platform.bookings.create');
+
+Route::screen('bookings/{booking}/edit', BookingEditScreen::class)
+    ->name('platform.bookings.edit');

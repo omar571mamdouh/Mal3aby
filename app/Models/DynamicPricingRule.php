@@ -9,7 +9,8 @@ class DynamicPricingRule extends Model
     protected $fillable = [
         'court_id',
         'rule_name',
-        'modifier'
+        'modifier',
+        'type',
     ];
 
     public function court()

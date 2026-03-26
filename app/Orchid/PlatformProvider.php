@@ -46,55 +46,91 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.roles')
                 ->divider(),
 
-           Menu::make('Organization')
-    ->icon('bs.collection')
+            Menu::make('Organization')
+                ->icon('bs.collection')
+                ->list([
+                    Menu::make('Clubs')
+                        ->icon('bs.building')
+                        ->route('platform.club'),
+
+                    Menu::make('Branches')
+                        ->icon('shop')
+                        ->route('platform.branch'),
+
+                    Menu::make('Facility')
+                        ->icon('bs.door-closed')
+                        ->route('platform.facility'),
+
+                    Menu::make('Court')
+                        ->icon('bs.dribbble')
+                        ->route('platform.court'),
+                ]),
+
+
+
+            Menu::make('Scheduling')
+                ->icon('bs.calendar')
+                ->list([
+                    Menu::make('Time Slots')
+                        ->icon('bs.clock')
+                        ->route('platform.court.timeslot'),
+
+                    Menu::make('Blackout Dates')
+                        ->icon('bs.calendar-x')
+                        ->route('platform.blackout-dates'),
+
+
+                    Menu::make('Seasonal Pricing')
+                        ->icon('bs.cash-stack')
+                        ->route('platform.seasonal-pricing'),
+
+
+                    Menu::make('Dynamic Pricing Rules')
+                        ->icon('bs.bar-chart')
+                        ->route('platform.dynamic-pricing.list'),
+
+                   Menu::make('Maintenance Logs')
+    ->icon('bs.wrench')
+    ->route('platform.maintenance-logs.list'),
+
+                ]),
+
+           Menu::make('Customer Details')
+    ->icon('bs.people-fill')          // ← الجروب
     ->list([
-        Menu::make('Clubs')
-            ->icon('bs.building')
-            ->route('platform.club'),
+        Menu::make('Customer')
+            ->icon('bs.person-lines-fill')  // ← مختلف عن الجروب
+            ->route('platform.customer.list'),
 
-        Menu::make('Branches')
-            ->icon('shop')
-            ->route('platform.branch'),
-
-        Menu::make('Facility')
-            ->icon('bs.door-closed')
-            ->route('platform.facility'),
-
-        Menu::make('Court')
-            ->icon('bs.dribbble')
-            ->route('platform.court'),
+        Menu::make('Customer Address')
+            ->icon('bs.geo-alt-fill')      // ← لوكيشن للعنوان
+            ->route('platform.customer.address.list'),
+        Menu::make('Customer Notes')
+            ->icon('bs.sticky')
+            ->route('platform.customer.notes'),
+         Menu::make('Customer Tags')
+            ->icon('bs.tag')
+            ->route('platform.customer.tags.list'),
     ]),
 
-
-
-       Menu::make('Scheduling')
-    ->icon('bs.calendar')
+    Menu::make('Booking Management')
+    ->icon('bs.calendar-check') // أيقونة حجز
     ->list([
-        Menu::make('Time Slots')
-            ->icon('bs.clock')
-            ->route('platform.court.timeslot'),
 
-        Menu::make('Blackout Dates')
-            ->icon('bs.calendar-x')
-            ->route('platform.blackout-dates'),
-           
+        Menu::make('Bookings')
+            ->icon('bs.calendar2-week') // جدول حجوزات
+            ->route('platform.bookings.list'),
 
-        Menu::make('Seasonal Pricing')
-            ->icon('bs.cash-stack')
-            ->route('platform.seasonal-pricing'),
-        
+        Menu::make('Status Logs')
+            ->icon('bs.clock-history'), // تاريخ الحالات
+            // ->route('platform.booking.status.logs'),
 
-        Menu::make('Dynamic Pricing Rules')
-            ->icon('bs.bar-chart'),
-            
-        Menu::make('Maintenance Logs')
-            ->icon('bs.wrench'),
-           
+        Menu::make('Cancellations')
+            ->icon('bs.calendar-x') // إلغاء
+            // ->route('platform.booking.cancellations'),
+
     ]),
 
-
-    
         ];
     }
 
