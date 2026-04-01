@@ -40,4 +40,32 @@ class Booking extends Model
     {
         return $this->hasOne(Cancellation::class);
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($booking) {
+            // لو الحالة اتغيرت
+            if ($booking->isDirty('status')) {
+                BookingStatusLog::create([
+                    'booking_id' => $booking->id,
+                    'status'     => $booking->status,
+                    'note'       => 'Updated from Booking Screen',
+                ]);
+            }
+        });
+
+        // Optional: لو عايز تسجيل إنشاء أولية كمان
+        static::created(function ($booking) {
+            BookingStatusLog::create([
+                'booking_id' => $booking->id,
+                'status'     => $booking->status,
+                'note'       => 'Booking created',
+            ]);
+        });
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(BookingStatusLog::class);
+    }
 }

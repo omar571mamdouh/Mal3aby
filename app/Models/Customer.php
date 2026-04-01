@@ -55,4 +55,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Facility::class);
     }
+    // App\Models\Customer.php
+public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
 }

@@ -47,10 +47,10 @@ use App\Orchid\Screens\CustomerAddress\CustomerAddressEditScreen;
 use App\Orchid\Screens\CustomerNote\CustomerNoteListScreen;
 use App\Orchid\Screens\CustomerNote\CustomerNoteEditScreen;
 use App\Orchid\Screens\CustomerTag\CustomerTagScreen;
-use App\Orchid\Screens\CustomerTag\CustomerTagEditScreen;
 use App\Orchid\Screens\Booking\BookingScreen;
-USE App\Orchid\Screens\Booking\BookingEditScreen;
-
+use App\Orchid\Screens\Booking\BookingEditScreen;
+use App\Orchid\Screens\BookingStatusLog\BookingStatusLogListScreen;
+use App\Orchid\Screens\Cancellations\CancellationListScreen;
 
 
 
@@ -245,12 +245,6 @@ Route::screen('customer-notes/{note}/edit', CustomerNoteEditScreen::class)
 Route::screen('customer-tags', CustomerTagScreen::class)
     ->name('platform.customer.tags.list');
 
-Route::screen('customer-tags/{tag}/edit', CustomerTagEditScreen::class)
-    ->name('platform.customer.tags.edit');
-
-Route::screen('customer-tags/create', CustomerTagEditScreen::class)
-    ->name('platform.customer.tags.create');
-
 Route::screen('bookings', BookingScreen::class)
     ->name('platform.bookings.list');
 
@@ -259,3 +253,14 @@ Route::screen('bookings/create', BookingEditScreen::class)
 
 Route::screen('bookings/{booking}/edit', BookingEditScreen::class)
     ->name('platform.bookings.edit');
+
+
+Route::screen('booking-logs', BookingStatusLogListScreen::class)
+    ->name('platform.booking.logs');
+
+// routes/platform.php
+Route::screen('cancellations', CancellationListScreen::class)
+    ->name('platform.cancellations');
+
+Route::screen('cancellations/{cancellation}/edit', \App\Orchid\Screens\Cancellations\CancellationEditScreen::class)
+    ->name('platform.cancellations.edit');

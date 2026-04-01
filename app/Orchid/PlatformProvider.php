@@ -120,14 +120,13 @@ class PlatformProvider extends OrchidServiceProvider
         Menu::make('Bookings')
             ->icon('bs.calendar2-week') // جدول حجوزات
             ->route('platform.bookings.list'),
-
-        Menu::make('Status Logs')
-            ->icon('bs.clock-history'), // تاريخ الحالات
-            // ->route('platform.booking.status.logs'),
+Menu::make('Booking Logs')
+    ->icon('bs.clock-history')
+    ->route('platform.booking.logs'),
 
         Menu::make('Cancellations')
             ->icon('bs.calendar-x') // إلغاء
-            // ->route('platform.booking.cancellations'),
+            ->route('platform.cancellations'),
 
     ]),
 

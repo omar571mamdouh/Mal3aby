@@ -11,6 +11,10 @@ class Cancellation extends Model
         'reason',
         'cancelled_at',
     ];
+    
+    protected $casts = [
+        'cancelled_at' => 'datetime',
+    ];
 
     public function booking()
     {

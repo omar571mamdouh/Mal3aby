@@ -14,6 +14,7 @@ use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Support\Facades\Toast;
+use App\Services\PricingService;
 
 class BookingEditScreen extends Screen
 {
@@ -78,23 +79,20 @@ class BookingEditScreen extends Screen
                     ->type('date')
                     ->title('Booking Date')
                     ->required(),
-
                 Select::make('booking.time_slot_id')
                     ->title('Time Slot')
-                    ->options(fn() => CourtTimeSlot::orderBy('start_time')
+                    ->options(fn() => CourtTimeSlot::with('court')
+                        ->where('active', 1)
+                        ->orderBy('court_id')
+                        ->orderBy('start_time')
                         ->get()
                         ->mapWithKeys(fn($slot) => [
-                            $slot->id => $slot->start_time . ' – ' . $slot->end_time,
+                            $slot->id => ($slot->court?->name ?? '?') . ' — ' .
+                                ucfirst($slot->day) . ' — ' .   // 👈 اليوم هنا
+                                $slot->start_time . ' – ' . $slot->end_time,
                         ]))
                     ->empty('— Select time slot —')
                     ->required(),
-
-                Input::make('booking.price')
-                    ->type('number')
-                    ->title('Price (EGP)')
-                    ->placeholder('0.00')
-                    ->required(),
-
                 Select::make('booking.status')
                     ->title('Status')
                     ->options([
@@ -108,24 +106,82 @@ class BookingEditScreen extends Screen
         ];
     }
 
-    public function save(Booking $booking, Request $request)
-    {
-        $data = $request->validate([
-            'booking.customer_id'  => 'required|exists:customers,id',
-            'booking.court_id'     => 'required|exists:courts,id',
-            'booking.booking_date' => 'required|date',
-            'booking.time_slot_id' => 'required|exists:court_time_slots,id',
-            'booking.price'        => 'required|numeric|min:0',
-            'booking.status'       => 'required|in:pending,confirmed,cancelled,completed',
-        ]);
 
-        $booking->fill($data['booking'])->save();
+public function save(Booking $booking, Request $request, PricingService $pricingService)
+{
+    $data = $request->validate([
+        'booking.customer_id'  => 'required|exists:customers,id',
+        'booking.court_id'     => 'required|exists:courts,id',
+        'booking.booking_date' => 'required|date',
+        'booking.time_slot_id' => 'required|exists:court_time_slots,id',
+        // ❌ شيلنا السعر من هنا
+        'booking.status'       => 'required|in:pending,confirmed,cancelled,completed',
+    ]);
 
-        Toast::info($booking->wasRecentlyCreated
-            ? 'Booking created successfully!'
-            : 'Booking updated successfully!'
-        );
+    // ✅ هات الـ slot
+    $slot = CourtTimeSlot::findOrFail($data['booking']['time_slot_id']);
 
-        return redirect()->route('platform.bookings.list');
+    // ✅ تحقق اليوم
+    $bookingDay = strtolower(\Carbon\Carbon::parse($data['booking']['booking_date'])->format('l'));
+
+    if ($slot->day !== $bookingDay) {
+        return back()->withErrors([
+            'booking.time_slot_id' => 'الـ Time Slot المختار مش بتاع يوم ' . $bookingDay . ' — اختار slot صح.',
+        ])->withInput();
     }
+
+    // ✅ تحقق Blackout
+    $blackout = \App\Models\BlackoutDate::where('court_id', $data['booking']['court_id'])
+        ->where('active', 1)
+        ->where('start_date', '<=', $data['booking']['booking_date'])
+        ->where(function ($q) use ($data) {
+            $q->whereNull('end_date')
+                ->orWhere('end_date', '>=', $data['booking']['booking_date']);
+        })
+        ->first();
+
+    if ($blackout) {
+        $reason = $blackout->reason ?? match ($blackout->type) {
+            'maintenance' => 'الملعب تحت الصيانة',
+            'holiday'     => 'يوم إجازة',
+            'event'       => 'يوجد حدث خاص',
+            'manual'      => 'الملعب مغلق',
+            default       => 'الملعب غير متاح',
+        };
+
+        return back()->withErrors([
+            'booking.booking_date' => "❌ هذا التاريخ غير متاح للحجز — {$reason}",
+        ])->withInput();
+    }
+
+    // ✅ هات الـ court
+    $court = Court::findOrFail($data['booking']['court_id']);
+
+    // 🔥 احسب السعر أوتوماتيك
+    $calculatedPrice = $pricingService->calculate(
+        $court,
+        $slot,
+        $data['booking']['booking_date']
+    );
+
+    // ✅ حط السعر في البيانات
+    $data['booking']['price'] = $calculatedPrice;
+
+    // 💾 حفظ
+    $booking->fill($data['booking'])->save();
+
+
+    //  تحديث التاج تلقائيًا بعد الحفظ
+$tagService = new \App\Services\CustomerTagService();
+$tagService->updateTag($booking->customer_id);
+
+    Toast::info(
+        ($booking->wasRecentlyCreated
+            ? 'Booking created successfully! '
+            : 'Booking updated successfully! ')
+        . "💰 Price: {$calculatedPrice} EGP"
+    );
+
+    return redirect()->route('platform.bookings.list');
+}
 }

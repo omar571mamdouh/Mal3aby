@@ -92,14 +92,13 @@ class DynamicPricingRuleEditScreen extends Screen
                         ->help('Choose whether the modifier is a percentage or a fixed amount.')
                         ->empty('— Select type —')
                         ->required(),
-
-                    Input::make('rule.modifier')
-                        ->title('Modifier Value')
-                        ->placeholder('e.g. 0.20 for 20%  or  50 for 50 EGP')
-                        ->help('For percentage, enter a decimal (0.20 = 20%). For fixed, enter the amount in EGP.')
-                        ->type('number')
-                        ->step(0.01)
-                        ->required(),
+Input::make('rule.modifier')
+    ->title('Modifier Value')
+    ->placeholder('e.g. 20 for 20%  or  50 for 50 EGP discount')
+    ->help('For percentage, enter 20 = 20%. For fixed, this value will be subtracted from price.')
+    ->type('number')
+    ->step(0.01)
+    ->required(),
 
                 ])
             )
