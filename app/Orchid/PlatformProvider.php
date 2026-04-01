@@ -89,47 +89,50 @@ class PlatformProvider extends OrchidServiceProvider
                         ->icon('bs.bar-chart')
                         ->route('platform.dynamic-pricing.list'),
 
-                   Menu::make('Maintenance Logs')
-    ->icon('bs.wrench')
-    ->route('platform.maintenance-logs.list'),
+                    Menu::make('Maintenance Logs')
+                        ->icon('bs.wrench')
+                        ->route('platform.maintenance-logs.list'),
 
                 ]),
 
-           Menu::make('Customer Details')
-    ->icon('bs.people-fill')          // ← الجروب
-    ->list([
-        Menu::make('Customer')
-            ->icon('bs.person-lines-fill')  // ← مختلف عن الجروب
-            ->route('platform.customer.list'),
+            Menu::make('Customer Details')
+                ->icon('bs.people-fill')          // ← الجروب
+                ->list([
+                    Menu::make('Customer')
+                        ->icon('bs.person-lines-fill')  // ← مختلف عن الجروب
+                        ->route('platform.customer.list'),
 
-        Menu::make('Customer Address')
-            ->icon('bs.geo-alt-fill')      // ← لوكيشن للعنوان
-            ->route('platform.customer.address.list'),
-        Menu::make('Customer Notes')
-            ->icon('bs.sticky')
-            ->route('platform.customer.notes'),
-         Menu::make('Customer Tags')
-            ->icon('bs.tag')
-            ->route('platform.customer.tags.list'),
-    ]),
+                    Menu::make('Customer Address')
+                        ->icon('bs.geo-alt-fill')      // ← لوكيشن للعنوان
+                        ->route('platform.customer.address.list'),
+                    Menu::make('Customer Notes')
+                        ->icon('bs.sticky')
+                        ->route('platform.customer.notes'),
+                    Menu::make('Customer Tags')
+                        ->icon('bs.tag')
+                        ->route('platform.customer.tags.list'),
+                ]),
 
-    Menu::make('Booking Management')
-    ->icon('bs.calendar-check') // أيقونة حجز
-    ->list([
+            Menu::make('Booking Management')
+                ->icon('bs.calendar-check') // أيقونة حجز
+                ->list([
 
-        Menu::make('Bookings')
-            ->icon('bs.calendar2-week') // جدول حجوزات
-            ->route('platform.bookings.list'),
-Menu::make('Booking Logs')
-    ->icon('bs.clock-history')
-    ->route('platform.booking.logs'),
+                    Menu::make('Bookings')
+                        ->icon('bs.calendar2-week') // جدول حجوزات
+                        ->route('platform.bookings.list'),
+                    Menu::make('Booking Logs')
+                        ->icon('bs.clock-history')
+                        ->route('platform.booking.logs'),
 
-        Menu::make('Cancellations')
-            ->icon('bs.calendar-x') // إلغاء
-            ->route('platform.cancellations'),
-
-    ]),
-
+                    Menu::make('Cancellations')
+                        ->icon('bs.calendar-x') // إلغاء
+                        ->route('platform.cancellations'),
+                   
+                ]),
+               Menu::make('Dashboard')
+    ->icon('bs.speedometer2')   // أيقونة مناسبة
+    ->route('platform.dashboard') // الاسم اللي هنسجله في web.php
+    ->title(__('Dashboard')),   // Optional عنوان للمجموعة
         ];
     }
 
