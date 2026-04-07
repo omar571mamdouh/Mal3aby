@@ -52,7 +52,8 @@ use App\Orchid\Screens\Booking\BookingEditScreen;
 use App\Orchid\Screens\BookingStatusLog\BookingStatusLogListScreen;
 use App\Orchid\Screens\Cancellations\CancellationListScreen;
 use App\Orchid\Screens\Dashboard\DashboardScreen;
-
+use App\Orchid\Screens\BookingService\BookingServiceScreen;
+use App\Orchid\Screens\BookingExtensions\BookingExtensionsScreen;
 
 
 /*
@@ -268,3 +269,15 @@ Route::screen('cancellations/{cancellation}/edit', \App\Orchid\Screens\Cancellat
 
 Route::screen('dashboard', DashboardScreen::class)
     ->name('platform.dashboard');
+
+Route::screen('services/all', \App\Orchid\Screens\BookingService\AllServicesScreen::class)
+    ->name('platform.services.all');
+
+Route::screen('extensions/all', \App\Orchid\Screens\BookingExtensions\AllExtentionsScreen::class)
+    ->name('platform.extensions.all');
+
+Route::screen('bookings/{booking}/services', BookingServiceScreen::class)
+    ->name('platform.bookings.services');
+
+Route::screen('bookings/{booking}/extensions', BookingExtensionsScreen::class)
+    ->name('platform.bookings.extensions');

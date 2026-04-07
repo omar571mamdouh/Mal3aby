@@ -52,7 +52,8 @@ class BookingScreen extends Screen
                     }),
 
                 TD::make('court', 'Court')
-                    ->render(fn(Booking $b) =>
+                    ->render(
+                        fn(Booking $b) =>
                         "<span style='display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;color:#166534;
                                       border:1px solid #bbf7d0;border-radius:6px;padding:3px 10px;font-size:12.5px;font-weight:600'>
                             🏟️ " . ($b->court?->name ?? '—') . "
@@ -71,7 +72,8 @@ class BookingScreen extends Screen
                     }),
 
                 TD::make('slot', 'Time')
-                    ->render(fn(Booking $b) =>
+                    ->render(
+                        fn(Booking $b) =>
                         "<span style='display:inline-flex;align-items:center;gap:5px;background:#eff6ff;color:#1d4ed8;
                                       border:1px solid #bfdbfe;border-radius:6px;padding:3px 10px;font-size:12.5px;font-weight:600'>
                             ⏰ " . ($b->timeSlot?->start_time ?? '—') . " – " . ($b->timeSlot?->end_time ?? '') . "
@@ -79,9 +81,10 @@ class BookingScreen extends Screen
                     ),
 
                 TD::make('price', 'Price')
-                    ->render(fn(Booking $b) =>
+                    ->render(
+                        fn(Booking $b) =>
                         "<span style='font-size:14px;font-weight:700;color:#065f46'>"
-                        . number_format($b->price, 2) . " EGP</span>"
+                            . number_format($b->price, 2) . " EGP</span>"
                     ),
 
                 TD::make('status', 'Status')
@@ -107,27 +110,43 @@ class BookingScreen extends Screen
                                     {$icon} {$label}
                                 </span>";
                     }),
-
                 TD::make('actions', '')
                     ->align(TD::ALIGN_RIGHT)
                     ->render(function (Booking $b) {
-                        $editUrl = route('platform.bookings.edit', $b->id);
+                        $editUrl     = route('platform.bookings.edit', $b->id);
+                        $servicesUrl = route('platform.bookings.services', $b->id); // 👈 زود السطر ده
 
                         $edit = "<a href='{$editUrl}'
-                                    style='width:30px;height:30px;border-radius:6px;background:#eff6ff;border:1px solid #bfdbfe;
-                                           color:#2563eb;display:inline-flex;align-items:center;justify-content:center;
-                                           text-decoration:none;transition:all .15s'
-                                    title='Edit'>✏️</a>";
+                    style='width:30px;height:30px;border-radius:6px;background:#eff6ff;border:1px solid #bfdbfe;
+                           color:#2563eb;display:inline-flex;align-items:center;justify-content:center;
+                           text-decoration:none;transition:all .15s'
+                    title='Edit'>✏️</a>";
+
+                        // 👈 زود الزرار ده
+                        $services = "<a href='{$servicesUrl}'
+                        style='width:30px;height:30px;border-radius:6px;background:#f0fdf4;border:1px solid #bbf7d0;
+                               color:#166534;display:inline-flex;align-items:center;justify-content:center;
+                               text-decoration:none;transition:all .15s'
+                        title='Services'>⚙️</a>";
+
+
+                        $extensionsUrl = route('platform.bookings.extensions', $b->id);
+
+$extensions = "<a href='{$extensionsUrl}'
+    style='width:30px;height:30px;border-radius:6px;background:#fff8e1;border:1px solid #ffe082;
+           color:#ff6f00;display:inline-flex;align-items:center;justify-content:center;
+           text-decoration:none;transition:all .15s'
+    title='Extensions'>⏱️</a>";
 
                         $delete = Button::make('🗑️')
                             ->confirm('Are you sure you want to delete this booking?')
                             ->method('remove', ['id' => $b->id])
                             ->class('btn btn-sm')
                             ->style('width:30px;height:30px;border-radius:6px;background:#fff1f2;border:1px solid #fecaca;
-                                    color:#dc2626;display:inline-flex;align-items:center;justify-content:center;padding:0')
+                    color:#dc2626;display:inline-flex;align-items:center;justify-content:center;padding:0')
                             ->render();
 
-                        return "<div style='display:flex;justify-content:flex-end;gap:6px'>{$edit}{$delete}</div>";
+                       return "<div style='display:flex;justify-content:flex-end;gap:6px'>{$edit}{$services}{$extensions}{$delete}</div>";
                     }),
             ]),
         ];

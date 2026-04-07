@@ -68,4 +68,22 @@ class Booking extends Model
     {
         return $this->hasMany(BookingStatusLog::class);
     }
+
+    public function services()
+{
+    return $this->hasMany(BookingService::class);
+}
+
+public function extensions()
+{
+    return $this->hasMany(BookingExtension::class);
+}
+
+public function totalPrice()
+{
+    $servicesPrice   = $this->services->sum(fn($s) => $s->totalPrice());
+    $extensionsPrice = $this->extensions->sum('price');
+
+    return $this->price + $servicesPrice + $extensionsPrice;
+}
 }
