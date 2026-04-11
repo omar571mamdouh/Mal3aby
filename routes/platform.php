@@ -54,7 +54,13 @@ use App\Orchid\Screens\Cancellations\CancellationListScreen;
 use App\Orchid\Screens\Dashboard\DashboardScreen;
 use App\Orchid\Screens\BookingService\BookingServiceScreen;
 use App\Orchid\Screens\BookingExtensions\BookingExtensionsScreen;
-
+use App\Orchid\Screens\Membership\MembershipListScreen;
+use App\Orchid\Screens\MembershipFeature\MembershipFeatureScreen;
+use App\Orchid\Screens\CustomerMembership\CustomerMembershipScreen;
+use App\Orchid\Screens\MembershipFreeHours\MembershipFreeHoursListScreen;
+use App\Orchid\Screens\MembershipFreeHours\MembershipFreeHoursEditScreen;
+use App\Orchid\Screens\MembershipUsageLogs\MembershipUsageLogsListScreen;
+use App\Orchid\Screens\MembershipUsageLogs\MembershipUsageLogsEditScreen;
 
 /*
 |--------------------------------------------------------------------------
@@ -281,3 +287,31 @@ Route::screen('bookings/{booking}/services', BookingServiceScreen::class)
 
 Route::screen('bookings/{booking}/extensions', BookingExtensionsScreen::class)
     ->name('platform.bookings.extensions');
+
+Route::screen('memberships', MembershipListScreen::class)
+    ->name('platform.memberships');
+
+Route::screen('membership-features', MembershipFeatureScreen::class)
+    ->name('platform.membership.features');
+
+Route::screen('customer-memberships', CustomerMembershipScreen::class)
+    ->name('platform.customer.memberships');
+
+
+Route::screen('membership/free-hours', MembershipFreeHoursListScreen::class)
+    ->name('platform.membership.free-hours.list');
+
+Route::screen('membership/free-hours/create', MembershipFreeHoursEditScreen::class)
+    ->name('platform.membership.free-hours.create');
+
+Route::screen('membership/free-hours/{freeHour}/edit', MembershipFreeHoursEditScreen::class)
+    ->name('platform.membership.free-hours.edit');
+
+Route::screen('membership/usage-logs', MembershipUsageLogsListScreen::class)
+    ->name('platform.membership.usage-logs.list');
+
+Route::screen('membership/usage-logs/create', MembershipUsageLogsEditScreen::class)
+    ->name('platform.membership.usage-logs.create');
+
+Route::screen('membership/usage-logs/{usageLog}/edit', MembershipUsageLogsEditScreen::class)
+    ->name('platform.membership.usage-logs.edit');

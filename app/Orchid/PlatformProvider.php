@@ -107,6 +107,28 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.clock-history')
                 ->route('platform.extensions.all'),
 
+            // Memberships Module
+            Menu::make('Memberships')
+                ->icon('people') // أيقونة مناسبة
+                ->route('platform.memberships')
+                ->title(__('Membership Management')),
+
+            Menu::make('Membership Features')
+                ->icon('star') // أيقونة واضحة للمميزات
+                ->route('platform.membership.features'),
+
+            Menu::make('Customer Memberships')
+                ->icon('clock') // تمثل الوقت المجاني أو الاشتراك
+                ->route('platform.customer.memberships'),
+
+            Menu::make('Membership Free Hours')
+                ->icon('stopwatch')
+                ->route('platform.membership.free-hours.list'),
+            
+            Menu::make('Membership Usage Logs')
+                ->icon('journal-text')
+                ->route('platform.membership.usage-logs.list'),
+
             // System Access (Roles & Users)
             Menu::make('Users')
                 ->icon('bs.people')
@@ -118,6 +140,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.shield')
                 ->route('platform.systems.roles')
                 ->permission('platform.systems.roles'),
+
         ];
     }
 
