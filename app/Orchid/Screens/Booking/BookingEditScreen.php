@@ -107,21 +107,18 @@ class BookingEditScreen extends Screen
     }
 
 
-public function save(Booking $booking, Request $request, PricingService $pricingService)
+    public function save(Booking $booking, Request $request, PricingService $pricingService)
 {
     $data = $request->validate([
         'booking.customer_id'  => 'required|exists:customers,id',
         'booking.court_id'     => 'required|exists:courts,id',
         'booking.booking_date' => 'required|date',
         'booking.time_slot_id' => 'required|exists:court_time_slots,id',
-        // ❌ شيلنا السعر من هنا
         'booking.status'       => 'required|in:pending,confirmed,cancelled,completed',
     ]);
 
-    // ✅ هات الـ slot
-    $slot = CourtTimeSlot::findOrFail($data['booking']['time_slot_id']);
-
-    // ✅ تحقق اليوم
+    // ── تحقق اليوم ──
+    $slot       = CourtTimeSlot::findOrFail($data['booking']['time_slot_id']);
     $bookingDay = strtolower(\Carbon\Carbon::parse($data['booking']['booking_date'])->format('l'));
 
     if ($slot->day !== $bookingDay) {
@@ -130,7 +127,7 @@ public function save(Booking $booking, Request $request, PricingService $pricing
         ])->withInput();
     }
 
-    // ✅ تحقق Blackout
+    // ── تحقق Blackout ──
     $blackout = \App\Models\BlackoutDate::where('court_id', $data['booking']['court_id'])
         ->where('active', 1)
         ->where('start_date', '<=', $data['booking']['booking_date'])
@@ -154,32 +151,39 @@ public function save(Booking $booking, Request $request, PricingService $pricing
         ])->withInput();
     }
 
-    // ✅ هات الـ court
-    $court = Court::findOrFail($data['booking']['court_id']);
+    // ── احسب السعر ──
+    $court           = Court::findOrFail($data['booking']['court_id']);
+    $calculatedPrice = $pricingService->calculate($court, $slot, $data['booking']['booking_date']);
 
-    // 🔥 احسب السعر أوتوماتيك
-    $calculatedPrice = $pricingService->calculate(
-        $court,
-        $slot,
-        $data['booking']['booking_date']
-    );
-
-    // ✅ حط السعر في البيانات
     $data['booking']['price'] = $calculatedPrice;
 
-    // 💾 حفظ
+    // ── حفظ ──
     $booking->fill($data['booking'])->save();
 
+    // ── تطبيق الـ Membership (بس لو حجز جديد) ──
+    $membershipResult = ['used_hours' => 0, 'discount' => 0];
+    if ($booking->wasRecentlyCreated) {
+        $membershipResult = (new \App\Services\MembershipService())
+            ->applyToBooking($booking);
+    }
 
-    //  تحديث التاج تلقائيًا بعد الحفظ
-$tagService = new \App\Services\CustomerTagService();
-$tagService->updateTag($booking->customer_id);
+    // ── تحديث التاج ──
+    (new \App\Services\CustomerTagService())
+        ->updateTag($booking->customer_id);
+
+    // ── Toast ──
+    $membershipMsg = '';
+    if ($membershipResult['used_hours'] > 0) {
+        $membershipMsg .= " | ⏱️ {$membershipResult['used_hours']} free hrs used";
+    }
+    if ($membershipResult['discount'] > 0) {
+        $membershipMsg .= " | 💸 discount: {$membershipResult['discount']} EGP";
+    }
 
     Toast::info(
-        ($booking->wasRecentlyCreated
-            ? 'Booking created successfully! '
-            : 'Booking updated successfully! ')
+        ($booking->wasRecentlyCreated ? 'Booking created successfully! ' : 'Booking updated successfully! ')
         . "💰 Price: {$calculatedPrice} EGP"
+        . $membershipMsg
     );
 
     return redirect()->route('platform.bookings.list');

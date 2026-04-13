@@ -124,10 +124,19 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Membership Free Hours')
                 ->icon('stopwatch')
                 ->route('platform.membership.free-hours.list'),
-            
+
             Menu::make('Membership Usage Logs')
                 ->icon('journal-text')
                 ->route('platform.membership.usage-logs.list'),
+
+            Menu::make('Coaches')
+                ->icon('person-badge')
+                ->route('platform.coaches')
+                ->title(__('Coaches Management')),
+
+            Menu::make('Coach Schedules')
+                ->icon('bs.calendar-week')
+                ->route('platform.coach.schedules'),
 
             // System Access (Roles & Users)
             Menu::make('Users')

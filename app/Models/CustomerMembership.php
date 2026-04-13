@@ -10,6 +10,17 @@ class CustomerMembership extends Model
         'customer_id', 'membership_id', 'start_date', 'end_date', 'status'
     ];
 
+    // ✅ ضيف الـ casts دي
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
+
+  public function isActive(): bool
+{
+    return $this->status === 'active'
+        && now()->startOfDay()->lte($this->end_date->endOfDay());
+}
     public function membership()
     {
         return $this->belongsTo(Membership::class);
@@ -28,11 +39,5 @@ class CustomerMembership extends Model
     public function usageLogs()
     {
         return $this->hasMany(MembershipUsageLog::class);
-    }
-
-    // 🔥 Helper
-    public function isActive()
-    {
-        return $this->status === 'active' && now()->between($this->start_date, $this->end_date);
     }
 }

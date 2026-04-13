@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Carbon\Carbon;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -85,5 +86,18 @@ public function totalPrice()
     $extensionsPrice = $this->extensions->sum('price');
 
     return $this->price + $servicesPrice + $extensionsPrice;
+}
+
+// في Booking Model
+public function durationHours(): float
+{
+    if (!$this->timeSlot) {
+        return 0;
+    }
+
+    $start = Carbon::parse($this->timeSlot->start_time);
+    $end   = Carbon::parse($this->timeSlot->end_time);
+
+    return $start->floatDiffInHours($end);
 }
 }

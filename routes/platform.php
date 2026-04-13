@@ -61,7 +61,10 @@ use App\Orchid\Screens\MembershipFreeHours\MembershipFreeHoursListScreen;
 use App\Orchid\Screens\MembershipFreeHours\MembershipFreeHoursEditScreen;
 use App\Orchid\Screens\MembershipUsageLogs\MembershipUsageLogsListScreen;
 use App\Orchid\Screens\MembershipUsageLogs\MembershipUsageLogsEditScreen;
-
+use App\Orchid\Screens\Coach\CoachListScreen;
+use App\Orchid\Screens\Coach\CoachEditScreen;
+use App\Orchid\Screens\CoachSchedule\CoachScheduleListScreen;
+use App\Orchid\Screens\CoachSchedule\CoachScheduleEditScreen;
 /*
 |--------------------------------------------------------------------------
 | Dashboard Routes
@@ -315,3 +318,21 @@ Route::screen('membership/usage-logs/create', MembershipUsageLogsEditScreen::cla
 
 Route::screen('membership/usage-logs/{usageLog}/edit', MembershipUsageLogsEditScreen::class)
     ->name('platform.membership.usage-logs.edit');
+
+Route::screen('coaches', CoachListScreen::class)
+    ->name('platform.coaches');
+
+Route::screen('coaches/create', CoachEditScreen::class)
+    ->name('platform.coaches.create');
+
+Route::screen('coaches/{coach}/edit', CoachEditScreen::class)
+    ->name('platform.coaches.edit');
+
+Route::screen('coach-schedules', CoachScheduleListScreen::class)
+    ->name('platform.coach.schedules');
+
+Route::screen('coach-schedules/create', CoachScheduleEditScreen::class)
+    ->name('platform.coach.schedules.create');
+
+Route::screen('coach-schedules/{schedule}/edit', CoachScheduleEditScreen::class)
+    ->name('platform.coach.schedules.edit');

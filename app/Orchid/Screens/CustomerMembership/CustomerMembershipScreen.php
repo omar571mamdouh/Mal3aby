@@ -113,22 +113,13 @@ class CustomerMembershipScreen extends Screen
                     }),
 
                 // ── Status ──
-                TD::make('status', 'Status')
-                    ->align(TD::ALIGN_CENTER)
-                    ->render(function ($item) {
-
-                        $isActive =
-                            $item->status === 'active'
-                            && now()->between($item->start_date, $item->end_date);
-
-                        return $isActive
-                            ? "<span style='background:#dcfce7;color:#15803d;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;'>
-                                🟢 Active
-                               </span>"
-                            : "<span style='background:#fee2e2;color:#b91c1c;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;'>
-                                🔴 Expired
-                               </span>";
-                    }),
+               TD::make('status', 'Status')
+    ->align(TD::ALIGN_CENTER)
+    ->render(fn($item) =>
+        $item->isActive()
+            ? "<span style='background:#dcfce7;color:#15803d;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;'>🟢 Active</span>"
+            : "<span style='background:#fee2e2;color:#b91c1c;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;'>🔴 Expired</span>"
+    ),
 
                 // ── Actions ──
                 TD::make('actions')

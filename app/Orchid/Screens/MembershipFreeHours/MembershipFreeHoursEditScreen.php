@@ -11,28 +11,20 @@ use Orchid\Support\Facades\Toast;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Actions\Button;
-use App\Models\MembershipUsageLog;
-use Illuminate\Support\Facades\DB;
 
 class MembershipFreeHoursEditScreen extends Screen
 {
-    public $freeHour;
+    public MembershipFreeHour $freeHour;
 
     public function query(MembershipFreeHour $freeHour): iterable
     {
-        // تعيين الخاصية لاستخدامها في باقي الدوال
         $this->freeHour = $freeHour;
-
-        return [
-            'freeHour' => $freeHour,
-        ];
+        return ['freeHour' => $freeHour];
     }
 
     public function name(): string
     {
-        return $this->freeHour->exists
-            ? 'Edit Membership Free Hours'
-            : 'Create Membership Free Hours';
+        return $this->freeHour->exists ? 'Edit Free Hours' : 'Create Free Hours';
     }
 
     public function commandBar(): iterable
@@ -42,9 +34,9 @@ class MembershipFreeHoursEditScreen extends Screen
                 ->icon('check')
                 ->method('save'),
 
-            Button::make('Remove')
+            Button::make('Delete')
                 ->icon('trash')
-                ->method('remove')
+                ->method('delete')
                 ->canSee($this->freeHour->exists),
         ];
     }
@@ -56,13 +48,15 @@ class MembershipFreeHoursEditScreen extends Screen
                 Select::make('freeHour.customer_membership_id')
                     ->title('Customer Membership')
                     ->options(
-                        CustomerMembership::with('customer', 'membership')
+                        CustomerMembership::with(['customer', 'membership'])
                             ->get()
-                            ->mapWithKeys(function ($model) {
-                                return [
-                                    $model->id => $model->customer->name . ' - ' . $model->membership->name
-                                ];
-                            })
+                            ->mapWithKeys(fn($model) => [
+                                $model->id =>
+                                    optional($model->customer)->first_name . ' ' .
+                                    optional($model->customer)->last_name .
+                                    ' - ' .
+                                    optional($model->membership)->name
+                            ])
                             ->toArray()
                     )
                     ->required(),
@@ -80,52 +74,34 @@ class MembershipFreeHoursEditScreen extends Screen
         ];
     }
 
-   public function save(Request $request, MembershipUsageLog $log)
-{
-    $data = $request->validate([
-        'log.customer_membership_id' => 'required|exists:customer_memberships,id',
-        'log.booking_id'             => 'nullable|exists:bookings,id',
-        'log.used_hours'             => 'required|integer|min:0',
-        'log.discount_amount'        => 'nullable|numeric|min:0',
-    ]);
+    // ✅ بيتعامل مع MembershipFreeHour بس — مش usage logs
+    public function save(Request $request, MembershipFreeHour $freeHour)
+    {
+        $data = $request->validate([
+            'freeHour.customer_membership_id' => 'required|exists:customer_memberships,id',
+            'freeHour.total_hours'             => 'required|numeric|min:0',
+            'freeHour.used_hours'              => 'required|numeric|min:0',
+        ])['freeHour'];
 
-    DB::transaction(function () use ($data, $log) {
-        $oldHours = $log->exists ? $log->used_hours : 0; // لو edit نرجع القديم الأول
-
-        $log->fill($data['log'])->save();
-
-        // ── تحديث MembershipFreeHour تلقائياً ──
-        $freeHour = MembershipFreeHour::where(
-            'customer_membership_id', $data['log']['customer_membership_id']
-        )->first();
-
-        if ($freeHour) {
-            $freeHour->increment('used_hours', $data['log']['used_hours'] - $oldHours);
-        }
-    });
-
-    Toast::info('Usage log saved successfully');
-
-    return redirect()->route('platform.membership.usage-logs.list');
-}
-
-   public function delete(MembershipUsageLog $log)
-{
-    DB::transaction(function () use ($log) {
-        // ── رجّع الساعات لما تحذف الـ log ──
-        $freeHour = MembershipFreeHour::where(
-            'customer_membership_id', $log->customer_membership_id
-        )->first();
-
-        if ($freeHour) {
-            $freeHour->decrement('used_hours', $log->used_hours);
+        // ✅ تأكد إن used_hours مش أكبر من total_hours
+        if ($data['used_hours'] > $data['total_hours']) {
+            Toast::error('Used hours cannot exceed total hours.');
+            return;
         }
 
-        $log->delete();
-    });
+        $freeHour->fill($data)->save();
 
-    Toast::info('Deleted successfully');
+        Toast::info('Free hours saved successfully.');
 
-    return redirect()->route('platform.membership.usage-logs.list');
-}
+        return redirect()->route('platform.membership.free-hours.list');
+    }
+
+    public function delete(MembershipFreeHour $freeHour)
+    {
+        $freeHour->delete();
+
+        Toast::warning('Free hours record deleted.');
+
+        return redirect()->route('platform.membership.free-hours.list');
+    }
 }
